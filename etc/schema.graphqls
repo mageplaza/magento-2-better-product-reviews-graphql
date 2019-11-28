@@ -1,0 +1,97 @@
+# Mageplaza
+#
+# NOTICE OF LICENSE
+#
+# This source file is subject to the Mageplaza.com license that is
+# available through the world-wide-web at this URL:
+# https://www.mageplaza.com/LICENSE.txt
+#
+# DISCLAIMER
+#
+# Do not edit or add to this file if you wish to upgrade this extension to newer
+# version in the future.
+#
+# @category    Mageplaza
+# @package     Mageplaza_BetterProductReviewsGraphQl
+# @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+# @license     https://www.mageplaza.com/LICENSE.txt
+
+type Query {
+    mpBprGetReview(
+        action: String! @doc(description: "Action in query.")
+        filter: ReviewsFilterInput @doc(description: "Identifies which product attributes to search for and return.")
+        reviewId: Int @doc(description: "")
+        productId: Int @doc(description: "")
+        productSku: Int @doc(description: "")
+        customerId: Int @doc(description: "")
+        pageSize: Int = 10 @doc(description: "How many items should show on the page.")
+        currentPage: Int = 1 @doc(description: "Allows to using paging it start with 1.")
+    ):ReviewsOutput @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\Reviews") @doc(description: "")
+}
+
+type Mutation {
+    mpBprCreateReview (
+        input: ReviewInput!
+        productId: Int! @doc(description: "")
+    ): Review @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\CreateReview") @doc(description:"Create new Review")
+}
+
+input ReviewsFilterInput {
+    created_at: FilterTypeInput  @doc(description: "The post id. Customers use this name to identify the post."),
+    entity_pk_value: Int @doc(description: ""),
+    entity_id: FilterTypeInput  @doc(description: "The store id"),
+    status_id: FilterTypeInput  @doc(description: "The post url_key"),
+    detail_id: FilterTypeInput  @doc(description: "Indicates whether the post allow comment"),
+    title: FilterTypeInput  @doc(description: "Timestamp indicating when the post was created"),
+    nickname: FilterTypeInput  @doc(description: "Timestamp indicating when the post was updated"),
+    mp_bpr_helpful: FilterTypeInput  @doc(description: "Author Id the post belongs to."),
+    avg_value: FilterTypeInput  @doc(description: "Import Source")
+}
+input ReviewInput {
+    store_id: Int @doc(description: ""),
+    title: String! @doc(description: ""),
+    detail: String! @doc(description: ""),
+    nickname: String! @doc(description: ""),
+    customer_id: Int @doc(description: ""),
+    mp_bpr_images: String @doc(description: ""),
+    mp_bpr_recommended_product: String @doc(description: ""),
+    mp_bpr_verified_buyer: String @doc(description: ""),
+    mp_bpr_helpful: Int @doc(description: ""),
+    avg_value: String! @doc(description: "")
+}
+
+
+type ReviewsOutput {
+    total_count: Int @doc(description: "The number of posts returned"),
+    items: [Review] @doc(description: "An array of post that match the specified search criteria")
+}
+
+type Review {
+    review_id: Int @doc(description: ""),
+    created_at: String @doc(description: ""),
+    entity_id: Int @doc(description: ""),
+    entity_pk_value: Int @doc(description: ""),
+    status_id: Int @doc(description: ""),
+    store_id: Int @doc(description: ""),
+    detail_id: Int @doc(description: ""),
+    title: String @doc(description: ""),
+    detail: String @doc(description: ""),
+    nickname: String @doc(description: ""),
+    customer_id: Int @doc(description: ""),
+    mp_bpr_images: String @doc(description: ""),
+    mp_bpr_recommended_product: String @doc(description: ""),
+    mp_bpr_verified_buyer: String @doc(description: ""),
+    mp_bpr_helpful: Int @doc(description: ""),
+    avg_value: String @doc(description: ""),
+    products: Product @resolver(class: "Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\Review\\Product") @doc(description: "The products assigned to a reviews")
+}
+type Product {
+    entity_id: Int @doc(description: ""),
+    attribute_set_id: Int @doc(description: ""),
+    type_id: String @doc(description: ""),
+    sku: String @doc(description: ""),
+    has_options: Int @doc(description: ""),
+    required_options: Int @doc(description: ""),
+    created_at: String @doc(description: ""),
+    updated_at: String @doc(description: "")
+}
