@@ -54,8 +54,8 @@ class Filter
         SearchResultFactory $searchResultFactory,
         Review $review
     ) {
-        $this->searchResultFactory  = $searchResultFactory;
-        $this->_review = $review;
+        $this->searchResultFactory = $searchResultFactory;
+        $this->_review             = $review;
     }
 
     /**
@@ -70,23 +70,11 @@ class Filter
      */
     public function getResult(
         SearchCriteriaInterface $searchCriteria,
-        $type = 'review',
         $collection = null
     ): SearchResult {
-        switch ($type) {
-            case 'category':
-                break;
-            case 'tag':
-                break;
-            case 'topic':
-                break;
-            case 'product':
-                break;
-            case 'review':
-            default:
-                $list = $this->_review->getList($searchCriteria, $collection);
-                break;
-        }
+        $this->changeFieldInFiilters($searchCriteria);
+
+        $list = $this->_review->getList($searchCriteria, $collection);
 
         $listArray = [];
         /** @var ReviewModel $item */
@@ -96,5 +84,19 @@ class Filter
         }
 
         return $this->searchResultFactory->create($list->getTotalCount(), $listArray);
+    }
+
+    /**
+     * @param SearchCriteriaInterface $searchCriteria
+     */
+    public function changeFieldInFiilters(SearchCriteriaInterface $searchCriteria)
+    {
+        foreach ($searchCriteria->getFilterGroups() as $filterGroup) {
+            foreach ($filterGroup->getFilters() as $filter) {
+                if ($filter->getField() === 'entity_pk_value') {
+                    $searchCriteria->getFilterGroups()[0]->getFilters()[0]->setField('main_table.entity_pk_value');
+                }
+            }
+        }
     }
 }

@@ -33,7 +33,7 @@ use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
-use Mageplaza\BetterProductReviews\Model\ResourceModel\Review\CollectionFactory;
+use Magento\Catalog\Model\Product;
 
 /**
  * Class CreateReview
@@ -52,17 +52,25 @@ class CreateReview implements ResolverInterface
     protected $_review;
 
     /**
+     * @var Product
+     */
+    protected $_product;
+
+    /**
      * CreateReview constructor.
      *
      * @param RatingFactory $ratingFactory
+     * @param Product $productModel
      * @param ReviewFactory $reviewFactory
      */
     public function __construct(
         RatingFactory $ratingFactory,
+        Product $productModel,
         ReviewFactory $reviewFactory
     ) {
-        $this->_rating = $ratingFactory;
-        $this->_review                      = $reviewFactory;
+        $this->_rating  = $ratingFactory;
+        $this->_review  = $reviewFactory;
+        $this->_product = $productModel;
     }
 
     /**
@@ -83,8 +91,13 @@ class CreateReview implements ResolverInterface
             throw new GraphQlInputException(__('"input" value should be specified'));
         }
 
-        $data       = $args['input'];
-        $productId  = $args['productId'];
+        $data      = $args['input'];
+        $productId = $args['productId'];
+
+        if (!$this->_product->load($productId)->getId()) {
+            throw new GraphQlInputException(__('The Product does not exit.'));
+        }
+
         $storeId    = isset($data['store_id']) ? $data['store_id'] : 1;
         $customerId = isset($data['customer_id']) ? $data['customer_id'] : null;
         $avgValue   = isset($data['avg_value']) ? $data['avg_value'] : '5';

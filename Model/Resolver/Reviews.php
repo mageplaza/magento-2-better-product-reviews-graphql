@@ -117,7 +117,7 @@ class Reviews implements ResolverInterface
             default:
                 throw new GraphQlInputException(__('No find your function'));
         }
-        $searchResult = $this->filterQuery->getResult($searchCriteria, 'review', $collection);
+        $searchResult = $this->filterQuery->getResult($searchCriteria, $collection);
 
         //possible division by 0
         if ($searchCriteria->getPageSize()) {
@@ -205,8 +205,14 @@ class Reviews implements ResolverInterface
         if (!isset($args['customerId'])) {
             throw new GraphQlInputException(__('customerId value is not null'));
         }
+
         $collection = $this->getReviewCollection();
-        $collection->addFieldToFilter('detail.customer_id', $args['customerId']);
+
+        if ($args['customerId'] === 0) {
+            $collection->addFieldToFilter('detail.customer_id', ['null' => true]);
+        } else {
+            $collection->addFieldToFilter('detail.customer_id', $args['customerId']);
+        }
 
         return $collection;
     }
