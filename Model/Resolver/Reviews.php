@@ -138,7 +138,15 @@ class Reviews implements ResolverInterface
 
         return [
             'total_count' => $searchResult->getTotalCount(),
-            'items'       => $searchResult->getItemsSearchResult()
+            'items'       => $searchResult->getItemsSearchResult(),
+            'pageInfo'    => [
+                'pageSize' => $args['pageSize'],
+                'currentPage' => $args['currentPage'],
+                'hasNextPage' => $currentPage<$maxPages,
+                'hasPreviousPage' => $currentPage>1,
+                'startPage' => 1,
+                'endPage' => $maxPages,
+            ]
         ];
     }
 

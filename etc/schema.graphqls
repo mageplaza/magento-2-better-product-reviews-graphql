@@ -38,7 +38,6 @@ type Mutation {
 
 input ReviewsFilterInput {
     created_at: FilterTypeInput  @doc(description: "Timestamp indicating when the post was created."),
-    entity_pk_value: FilterTypeInput @doc(description: "Product id."),
     entity_id: FilterTypeInput  @doc(description: "The Entity Id."),
     status_id: FilterTypeInput  @doc(description: "Status code."),
     detail_id: FilterTypeInput  @doc(description: "Review detail id."),
@@ -62,6 +61,16 @@ input ReviewInput {
 type ReviewsOutput {
     total_count: Int @doc(description: "The number of posts returned"),
     items: [Review] @doc(description: "An array of post that match the specified search criteria")
+    pageInfo: PageInfo @doc(description: "An object that includes the page_info and currentPage values specified in the query")
+}
+
+type PageInfo {
+    pageSize: Int @doc(description: "How many items should show on the page.")
+    currentPage: Int @doc(description: "Allows to using paging it start with 1.")
+    hasNextPage: Boolean @doc(description: "Is next page")
+    hasPreviousPage: Boolean @doc(description: "Is previous page")
+    startPage: Int @doc(description: "Start page")
+    endPage: Int @doc(description: "End page")
 }
 
 type Review {
