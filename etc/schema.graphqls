@@ -22,7 +22,7 @@ type Query {
         filter: ReviewsFilterInput @doc(description: "Identifies which product attributes to search for and return.")
         reviewId: Int @doc(description: "Review Id use in the filter. Apply when action is get_view_review.")
         productId: Int @doc(description: "Product Id use in the filter. Apply when action is get_by_productId.")
-        productSku: Int @doc(description: "Product Sku use in the filter. Apply when action is get_by_productSku.")
+        productSku: String @doc(description: "Product Sku use in the filter. Apply when action is get_by_productSku.")
         customerId: Int @doc(description: "Customer Id use in the filter. Apply when action is get_by_customerId.")
         pageSize: Int = 10 @doc(description: "How many items should show on the page.")
         currentPage: Int = 1 @doc(description: "Allows to using paging it start with 1.")

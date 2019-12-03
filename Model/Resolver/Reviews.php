@@ -140,12 +140,12 @@ class Reviews implements ResolverInterface
             'total_count' => $searchResult->getTotalCount(),
             'items'       => $searchResult->getItemsSearchResult(),
             'pageInfo'    => [
-                'pageSize' => $args['pageSize'],
-                'currentPage' => $args['currentPage'],
-                'hasNextPage' => $currentPage<$maxPages,
-                'hasPreviousPage' => $currentPage>1,
-                'startPage' => 1,
-                'endPage' => $maxPages,
+                'pageSize'        => $args['pageSize'],
+                'currentPage'     => $args['currentPage'],
+                'hasNextPage'     => $currentPage < $maxPages,
+                'hasPreviousPage' => $currentPage > 1,
+                'startPage'       => 1,
+                'endPage'         => $maxPages,
             ]
         ];
     }
@@ -178,6 +178,12 @@ class Reviews implements ResolverInterface
         if (!isset($args['productId'])) {
             throw new GraphQlInputException(__('productId value is not null'));
         }
+        $product = $this->_product->load($args['productId']);
+
+        if (!$product->getId()) {
+            throw new GraphQlInputException(__('No element found matching the given condition.'));
+        }
+
         $collection = $this->getReviewCollection();
         $collection->addFieldToFilter('main_table.entity_pk_value', $args['productId']);
 
@@ -195,9 +201,14 @@ class Reviews implements ResolverInterface
         if (!isset($args['productSku'])) {
             throw new GraphQlInputException(__('Action value is not null'));
         }
-        $productId  = $this->_product->loadByAttribute('sku', $args['productSku'])->getId();
+        $product = $this->_product->loadByAttribute('sku', $args['productSku']);
+
+        if (!$product) {
+            throw new GraphQlInputException(__('No element found matching the given condition.'));
+        }
+
         $collection = $this->getReviewCollection();
-        $collection->addFieldToFilter('main_table.entity_pk_value', $productId);
+        $collection->addFieldToFilter('main_table.entity_pk_value', $product->getId());
 
         return $collection;
     }
