@@ -33,7 +33,7 @@ type Mutation {
     mpBprCreateReview (
         input: ReviewInput!
         productId: Int! @doc(description: "Product Id used to add reviews.")
-    ): Review @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\CreateReview") @doc(description:"Create a new Review")
+    ): NewReview @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\CreateReview") @doc(description:"Create a new Review")
 }
 
 input ReviewsFilterInput {
@@ -91,6 +91,25 @@ type Review {
     avg_value: String @doc(description: ""),
     products: Product @resolver(class: "Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\Review\\Product") @doc(description: "The products assigned to a reviews")
 }
+
+type NewReview {
+    review_id: Int @doc(description: ""),
+    created_at: String @doc(description: ""),
+    entity_id: Int @doc(description: ""),
+    entity_pk_value: Int @doc(description: ""),
+    status_id: Int @doc(description: ""),
+    detail_id: Int @doc(description: ""),
+    title: String @doc(description: ""),
+    detail: String @doc(description: ""),
+    nickname: String @doc(description: ""),
+    customer_id: Int @doc(description: ""),
+    mp_bpr_images: String @doc(description: ""),
+    mp_bpr_recommended_product: String @doc(description: ""),
+    mp_bpr_verified_buyer: String @doc(description: ""),
+    mp_bpr_helpful: Int @doc(description: ""),
+    avg_value: String @doc(description: "")
+}
+
 type Product {
     entity_id: Int @doc(description: ""),
     attribute_set_id: Int @doc(description: ""),
