@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Mageplaza\BetterProductReviewsGraphQl\Model\Resolver;
 
 use Exception;
+use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Magento\Framework\GraphQl\Query\Resolver\Value;
@@ -58,20 +59,28 @@ class CreateReview implements ResolverInterface
     protected $_product;
 
     /**
+     * @var CustomerRepositoryInterface
+     */
+    protected $_customerRepositoryInterface;
+
+    /**
      * CreateReview constructor.
      *
      * @param RatingFactory $ratingFactory
      * @param Product $productModel
+     * @param CustomerRepositoryInterface $customerRepositoryInterface
      * @param ReviewFactory $reviewFactory
      */
     public function __construct(
         RatingFactory $ratingFactory,
         Product $productModel,
+        CustomerRepositoryInterface $customerRepositoryInterface,
         ReviewFactory $reviewFactory
     ) {
-        $this->_rating  = $ratingFactory;
-        $this->_review  = $reviewFactory;
-        $this->_product = $productModel;
+        $this->_rating                      = $ratingFactory;
+        $this->_review                      = $reviewFactory;
+        $this->_product                     = $productModel;
+        $this->_customerRepositoryInterface = $customerRepositoryInterface;
     }
 
     /**
@@ -101,10 +110,13 @@ class CreateReview implements ResolverInterface
 
         $storeId    = isset($data['store_id']) ? $data['store_id'] : 1;
         $customerId = isset($data['customer_id']) ? $data['customer_id'] : null;
-        $avgValue   = isset($data['avg_value']) ? $data['avg_value'] : '5';
-        $status     = isset($data['status_id']) ? $data['status_id'] : Review::STATUS_PENDING;
-        $ratings    = $this->getRatingCollection($storeId);
-        $object     = $this->_review->create()->setData($data);
+        if ($customerId) {
+            $this->_customerRepositoryInterface->getById($customerId);
+        }
+        $avgValue = isset($data['avg_value']) ? $data['avg_value'] : '5';
+        $status   = isset($data['status_id']) ? $data['status_id'] : Review::STATUS_PENDING;
+        $ratings  = $this->getRatingCollection($storeId);
+        $object   = $this->_review->create()->setData($data);
         $object->unsetData('review_id');
 
         if ($object->validate()) {
