@@ -110,7 +110,7 @@ class CreateReview implements ResolverInterface
 
         $storeId    = isset($data['store_id']) ? $data['store_id'] : 1;
         $customerId = isset($data['customer_id']) ? $data['customer_id'] : null;
-        if ($customerId) {
+        if ($customerId || $customerId === 0) {
             $this->_customerRepositoryInterface->getById($customerId);
         }
         $avgValue = isset($data['avg_value']) ? $data['avg_value'] : '5';
