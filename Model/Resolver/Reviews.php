@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Mageplaza\BetterProductReviewsGraphQl\Model\Resolver;
 
 use Magento\Catalog\Model\Product;
-use Mageplaza\BetterProductReviews\Helper\Data;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\Builder as SearchCriteriaBuilder;
@@ -40,11 +39,6 @@ use Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\Query\Filter;
  */
 class Reviews implements ResolverInterface
 {
-
-    /**
-     * @var Data
-     */
-    private $_helperData;
     /**
      * @var SearchCriteriaBuilder
      */
@@ -68,20 +62,17 @@ class Reviews implements ResolverInterface
     /**
      * Posts constructor.
      *
-     * @param Data $helperData
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param CollectionFactory $reviewCollection
      * @param Product $product
      * @param Filter $filterQuery
      */
     public function __construct(
-        Data $helperData,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         CollectionFactory $reviewCollection,
         Product $product,
         Filter $filterQuery
     ) {
-        $this->_helperData           = $helperData;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->reviewCollection      = $reviewCollection;
         $this->_product              = $product;

@@ -34,8 +34,6 @@ use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
  */
 class Product implements ResolverInterface
 {
-
-
     /**
      * @var ProductModel
      */

@@ -62,7 +62,6 @@ class Filter
      * Filter catalog product data based off given search criteria
      *
      * @param SearchCriteriaInterface $searchCriteria
-     * @param string $type
      *
      * @param null $collection
      *
@@ -72,8 +71,6 @@ class Filter
         SearchCriteriaInterface $searchCriteria,
         $collection = null
     ): SearchResult {
-        $this->changeFieldInFiilters($searchCriteria);
-
         $list = $this->_review->getList($searchCriteria, $collection);
 
         $listArray = [];
@@ -84,19 +81,5 @@ class Filter
         }
 
         return $this->searchResultFactory->create($list->getTotalCount(), $listArray);
-    }
-
-    /**
-     * @param SearchCriteriaInterface $searchCriteria
-     */
-    public function changeFieldInFiilters(SearchCriteriaInterface $searchCriteria)
-    {
-        foreach ($searchCriteria->getFilterGroups() as $filterGroup) {
-            foreach ($filterGroup->getFilters() as $filter) {
-                if ($filter->getField() === 'entity_pk_value') {
-                    $searchCriteria->getFilterGroups()[0]->getFilters()[0]->setField('main_table.entity_pk_value');
-                }
-            }
-        }
     }
 }

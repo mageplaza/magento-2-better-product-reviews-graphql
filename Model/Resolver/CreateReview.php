@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Mageplaza\BetterProductReviewsGraphQl\Model\Resolver;
 
 use Exception;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Magento\Framework\GraphQl\Query\Resolver\Value;
 use Magento\Review\Model\RatingFactory;
@@ -137,7 +138,7 @@ class CreateReview implements ResolverInterface
      * @param $storeId
      *
      * @return mixed
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     public function getRatingCollection($storeId)
     {
