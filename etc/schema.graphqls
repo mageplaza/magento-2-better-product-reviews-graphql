@@ -49,7 +49,6 @@ input ReviewInput {
     title: String! @doc(description: "Review Title."),
     detail: String! @doc(description: "Review detail."),
     nickname: String! @doc(description: "User nickname."),
-    customer_id: Int @doc(description: "Customer Id"),
     mp_bpr_images: String @doc(description: "Mageplaza BPR Review Images (Json)."),
     mp_bpr_recommended_product: String @doc(description: "Mageplaza BPR Recommended Product."),
     mp_bpr_verified_buyer: String @doc(description: "Mageplaza BPR Verified Buyer."),

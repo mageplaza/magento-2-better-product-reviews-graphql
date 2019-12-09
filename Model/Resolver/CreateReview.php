@@ -26,6 +26,8 @@ namespace Mageplaza\BetterProductReviewsGraphQl\Model\Resolver;
 use Exception;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\GraphQl\Exception\GraphQlAuthorizationException;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Magento\Framework\GraphQl\Query\Resolver\Value;
 use Magento\Review\Model\RatingFactory;
@@ -36,6 +38,7 @@ use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Catalog\Model\Product;
+use Mageplaza\BetterProductReviews\Helper\Data;
 
 /**
  * Class CreateReview
@@ -64,22 +67,30 @@ class CreateReview implements ResolverInterface
     protected $_customerRepositoryInterface;
 
     /**
+     * @var Data
+     */
+    protected $_helperData;
+
+    /**
      * CreateReview constructor.
      *
      * @param RatingFactory $ratingFactory
      * @param Product $productModel
      * @param CustomerRepositoryInterface $customerRepositoryInterface
+     * @param Data $helperData
      * @param ReviewFactory $reviewFactory
      */
     public function __construct(
         RatingFactory $ratingFactory,
         Product $productModel,
         CustomerRepositoryInterface $customerRepositoryInterface,
+        Data $helperData,
         ReviewFactory $reviewFactory
     ) {
         $this->_rating                      = $ratingFactory;
         $this->_review                      = $reviewFactory;
         $this->_product                     = $productModel;
+        $this->_helperData                  = $helperData;
         $this->_customerRepositoryInterface = $customerRepositoryInterface;
     }
 
@@ -109,10 +120,12 @@ class CreateReview implements ResolverInterface
         }
 
         $storeId    = isset($data['store_id']) ? $data['store_id'] : 1;
-        $customerId = isset($data['customer_id']) ? $data['customer_id'] : null;
-        if ($customerId || $customerId === 0) {
-            $this->_customerRepositoryInterface->getById($customerId);
+        $customerId = $this->isUserGuest($context->getUserId());
+
+        if (!$customerId) {
+            throw new GraphQlAuthorizationException(__('The current customer isn\'t authorized.'));
         }
+
         $avgValue = isset($data['avg_value']) ? $data['avg_value'] : '5';
         $status   = isset($data['status_id']) ? $data['status_id'] : Review::STATUS_PENDING;
         $ratings  = $this->getRatingCollection($storeId);
@@ -163,5 +176,26 @@ class CreateReview implements ResolverInterface
         )->setActiveFilter(
             true
         )->load()->addOptionToItems();
+    }
+
+    /**
+     * @param $currentUserId
+     *
+     * @return int|null
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function isUserGuest($currentUserId)
+    {
+        if ($currentUserId === '0') {
+            return null;
+        }
+
+        $customer     = $this->_customerRepositoryInterface->getById($currentUserId);
+        $mpGroupArray = explode(',', $this->_helperData->getModuleConfig('write_review/customer_group'));
+        if (in_array($customer->getGroupId(), $mpGroupArray, true)) {
+            return $customer->getGroupId();
+        }
+        return null;
     }
 }
