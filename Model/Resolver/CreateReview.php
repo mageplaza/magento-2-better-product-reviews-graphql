@@ -170,6 +170,10 @@ class CreateReview implements ResolverInterface
                 ['mp_detail' => $collection->getTable('review_detail')],
                 'main_table.review_id = mp_detail.review_id',
                 ['mp_bpr_images', 'mp_bpr_recommended_product', 'mp_bpr_verified_buyer', 'mp_bpr_helpful']
+            )->join(
+                ['mp_vote' => $collection->getTable('rating_option_vote')],
+                'main_table.review_id = mp_vote.review_id',
+                ['avg_value' => 'mp_vote.value']
             )->where('main_table.review_id = ?', $object->getId());
 
             return $collection->getFirstItem();
@@ -222,9 +226,15 @@ class CreateReview implements ResolverInterface
         return false;
     }
 
+    /**
+     * @param $customerId
+     * @param $productId
+     *
+     * @return bool
+     */
     public function isEnableWrite($customerId, $productId)
     {
-        if ($this->_helperData->getWriteReviewConfig('enabled') !== CustomerRestriction::PURCHASERS_ONLY) {
+        if ((int)$this->_helperData->getWriteReviewConfig('enabled') !== CustomerRestriction::PURCHASERS_ONLY) {
             return (bool) $this->_helperData->getWriteReviewConfig('enabled');
         }
 
