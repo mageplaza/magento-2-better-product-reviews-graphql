@@ -193,15 +193,17 @@ class CreateReview implements ResolverInterface
      */
     public function isUserGuest($currentUserId)
     {
-        $mpGroupArray = explode(',', $this->_helperData->getModuleConfig('write_review/customer_group'));
-        try {
-            $customerGroup = $this->_customerRepositoryInterface->getById($currentUserId)->getGroupId();
-        } catch (NoSuchEntityException $exception) {
-            $customerGroup = '0';
-        }
+        if ($this->_helperData->isEnabled() && $this->_helperData->getWriteReviewConfig('enabled')) {
+            $mpGroupArray = explode(',', $this->_helperData->getWriteReviewConfig('customer_group'));
+            try {
+                $customerGroup = $this->_customerRepositoryInterface->getById($currentUserId)->getGroupId();
+            } catch (NoSuchEntityException $exception) {
+                $customerGroup = '0';
+            }
 
-        if (in_array($customerGroup, $mpGroupArray, true)) {
-            return $currentUserId ?: null;
+            if (in_array($customerGroup, $mpGroupArray, true)) {
+                return $currentUserId ?: null;
+            }
         }
 
         return false;
