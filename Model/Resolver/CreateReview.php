@@ -122,7 +122,7 @@ class CreateReview implements ResolverInterface
         $storeId    = isset($data['store_id']) ? $data['store_id'] : 1;
         $customerId = $this->isUserGuest($context->getUserId());
 
-        if (!$customerId) {
+        if ($customerId === false) {
             throw new GraphQlAuthorizationException(__('The current customer isn\'t authorized.'));
         }
 
@@ -153,7 +153,14 @@ class CreateReview implements ResolverInterface
             }
             $object->aggregate();
 
-            return $object;
+            $collection = $object->getCollection();
+            $collection->getSelect()->join(
+                ['mp_detail' => $collection->getTable('review_detail')],
+                'main_table.review_id = mp_detail.review_id',
+                ['mp_bpr_images', 'mp_bpr_recommended_product', 'mp_bpr_verified_buyer', 'mp_bpr_helpful']
+            )->where('main_table.review_id = ?', $object->getId());
+
+            return $collection->getFirstItem();
         }
 
         return [];
@@ -181,17 +188,22 @@ class CreateReview implements ResolverInterface
     /**
      * @param $currentUserId
      *
-     * @return int|null
+     * @return string|null
      * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
     public function isUserGuest($currentUserId)
     {
-        $customer     = $this->_customerRepositoryInterface->getById($currentUserId);
         $mpGroupArray = explode(',', $this->_helperData->getModuleConfig('write_review/customer_group'));
-        if (in_array($customer->getGroupId(), $mpGroupArray, true)) {
-            return $customer->getGroupId();
+        try {
+            $customerGroup = $this->_customerRepositoryInterface->getById($currentUserId)->getGroupId();
+        } catch (NoSuchEntityException $exception) {
+            $customerGroup = '0';
         }
-        return null;
+
+        if (in_array($customerGroup, $mpGroupArray, true)) {
+            return $currentUserId ?: null;
+        }
+
+        return false;
     }
 }
