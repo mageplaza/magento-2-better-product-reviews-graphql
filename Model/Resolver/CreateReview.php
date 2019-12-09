@@ -38,7 +38,11 @@ use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Magento\Catalog\Model\Product;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Item;
+use Magento\Sales\Model\OrderFactory;
 use Mageplaza\BetterProductReviews\Helper\Data;
+use Mageplaza\BetterProductReviews\Model\Config\Source\System\CustomerRestriction;
 
 /**
  * Class CreateReview
@@ -72,12 +76,18 @@ class CreateReview implements ResolverInterface
     protected $_helperData;
 
     /**
+     * @var OrderFactory
+     */
+    protected $_orderFactory;
+
+    /**
      * CreateReview constructor.
      *
      * @param RatingFactory $ratingFactory
      * @param Product $productModel
      * @param CustomerRepositoryInterface $customerRepositoryInterface
      * @param Data $helperData
+     * @param OrderFactory $orderFactory
      * @param ReviewFactory $reviewFactory
      */
     public function __construct(
@@ -85,11 +95,13 @@ class CreateReview implements ResolverInterface
         Product $productModel,
         CustomerRepositoryInterface $customerRepositoryInterface,
         Data $helperData,
+        OrderFactory $orderFactory,
         ReviewFactory $reviewFactory
     ) {
         $this->_rating                      = $ratingFactory;
         $this->_review                      = $reviewFactory;
         $this->_product                     = $productModel;
+        $this->_orderFactory                = $orderFactory;
         $this->_helperData                  = $helperData;
         $this->_customerRepositoryInterface = $customerRepositoryInterface;
     }
@@ -120,7 +132,7 @@ class CreateReview implements ResolverInterface
         }
 
         $storeId    = isset($data['store_id']) ? $data['store_id'] : 1;
-        $customerId = $this->isUserGuest($context->getUserId());
+        $customerId = $this->isUserGuest($context->getUserId(), $productId);
 
         if ($customerId === false) {
             throw new GraphQlAuthorizationException(__('The current customer isn\'t authorized.'));
@@ -187,13 +199,14 @@ class CreateReview implements ResolverInterface
 
     /**
      * @param $currentUserId
+     * @param $productId
      *
-     * @return string|null
+     * @return bool|null
      * @throws LocalizedException
      */
-    public function isUserGuest($currentUserId)
+    public function isUserGuest($currentUserId, $productId)
     {
-        if ($this->_helperData->isEnabled() && $this->_helperData->getWriteReviewConfig('enabled')) {
+        if ($this->_helperData->isEnabled() && $this->isEnableWrite($currentUserId, $productId)) {
             $mpGroupArray = explode(',', $this->_helperData->getWriteReviewConfig('customer_group'));
             try {
                 $customerGroup = $this->_customerRepositoryInterface->getById($currentUserId)->getGroupId();
@@ -207,5 +220,34 @@ class CreateReview implements ResolverInterface
         }
 
         return false;
+    }
+
+    public function isEnableWrite($customerId, $productId)
+    {
+        if ($this->_helperData->getWriteReviewConfig('enabled') !== CustomerRestriction::PURCHASERS_ONLY) {
+            return (bool) $this->_helperData->getWriteReviewConfig('enabled');
+        }
+
+        $result = false;
+
+        if ($customerId) {
+            $orders = $this->_orderFactory->create()->getCollection()
+                ->addFieldToFilter('customer_id', $customerId)
+                ->addFieldToFilter('state', Order::STATE_COMPLETE);
+            foreach ($orders as $order) {
+                /**
+                 * @var Order $order
+                 */
+                foreach ($order->getAllVisibleItems() as $item) {
+                    /** @var Item $item */
+                    if ($productId == $item->getProductId()) {
+                        $result = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $result;
     }
 }
