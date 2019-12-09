@@ -138,7 +138,7 @@ class CreateReview implements ResolverInterface
             throw new GraphQlAuthorizationException(__('The current customer isn\'t authorized.'));
         }
 
-        $avgValue = isset($data['avg_value']) ? $data['avg_value'] : '5';
+        $avgValue = isset($data['avg_value']) ? (int)$data['avg_value'] : '5';
         $status   = isset($data['status_id']) ? $data['status_id'] : Review::STATUS_PENDING;
         $ratings  = $this->getRatingCollection($storeId);
         $object   = $this->_review->create()->setData($data);
@@ -154,7 +154,7 @@ class CreateReview implements ResolverInterface
                 ->save();
             foreach ($ratings as $ratingId => $rating) {
                 foreach ($rating->getOptions() as $option) {
-                    if ($option->getValue() === $avgValue) {
+                    if ((int)$option->getValue() === $avgValue) {
                         $this->_rating->create()
                             ->setRatingId($ratingId)
                             ->setReviewId($object->getId())
