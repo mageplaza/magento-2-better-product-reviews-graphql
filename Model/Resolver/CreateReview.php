@@ -187,10 +187,6 @@ class CreateReview implements ResolverInterface
      */
     public function isUserGuest($currentUserId)
     {
-        if ($currentUserId === '0') {
-            return null;
-        }
-
         $customer     = $this->_customerRepositoryInterface->getById($currentUserId);
         $mpGroupArray = explode(',', $this->_helperData->getModuleConfig('write_review/customer_group'));
         if (in_array($customer->getGroupId(), $mpGroupArray, true)) {
