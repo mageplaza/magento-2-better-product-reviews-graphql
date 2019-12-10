@@ -32,6 +32,7 @@ use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Mageplaza\BetterProductReviews\Model\ResourceModel\Review\Collection;
 use Mageplaza\BetterProductReviews\Model\ResourceModel\Review\CollectionFactory;
 use Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\Query\Filter;
+use Mageplaza\BetterProductReviews\Helper\Data;
 
 /**
  * Class Reviews
@@ -60,23 +61,31 @@ class Reviews implements ResolverInterface
     protected $_product;
 
     /**
+     * @var Data
+     */
+    protected $_helperData;
+
+    /**
      * Posts constructor.
      *
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param CollectionFactory $reviewCollection
      * @param Product $product
+     * @param Data $_helperData
      * @param Filter $filterQuery
      */
     public function __construct(
         SearchCriteriaBuilder $searchCriteriaBuilder,
         CollectionFactory $reviewCollection,
         Product $product,
+        Data $_helperData,
         Filter $filterQuery
     ) {
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->reviewCollection      = $reviewCollection;
         $this->_product              = $product;
         $this->filterQuery           = $filterQuery;
+        $this->_helperData           = $_helperData;
     }
 
     /**
@@ -88,6 +97,21 @@ class Reviews implements ResolverInterface
         $searchCriteria = $this->searchCriteriaBuilder->build('reviews', $args);
         $searchCriteria->setCurrentPage($args['currentPage']);
         $searchCriteria->setPageSize($args['pageSize']);
+
+        if (!$this->_helperData->isEnabled()) {
+            return [
+                'total_count' => 0,
+                'items'       => [],
+                'pageInfo'    => [
+                    'pageSize'        => $args['pageSize'],
+                    'currentPage'     => $args['currentPage'],
+                    'hasNextPage'     => false,
+                    'hasPreviousPage' => false,
+                    'startPage'       => 1,
+                    'endPage'         => 1,
+                ]
+            ];
+        }
 
         switch ($args['action']) {
             case 'get_all_review':
