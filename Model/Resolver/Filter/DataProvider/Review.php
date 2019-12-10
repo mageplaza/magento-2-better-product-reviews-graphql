@@ -25,6 +25,7 @@ namespace Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\DataProvid
 
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
+use Mageplaza\BetterProductReviews\Helper\Data;
 use Mageplaza\Blog\Model\ResourceModel\Post\Collection;
 use Mageplaza\BetterProductReviews\Model\ResourceModel\Review\CollectionFactory;
 use Magento\Catalog\Api\Data\ProductSearchResultsInterfaceFactory;
@@ -51,20 +52,28 @@ class Review
     protected $collectionProcessor;
 
     /**
+     * @var Data
+     */
+    protected $_helperData;
+
+    /**
      * Post constructor.
      *
      * @param CollectionFactory $collectionFactory
      * @param CollectionProcessorInterface $collectionProcessor
+     * @param Data $_helperData
      * @param ProductSearchResultsInterfaceFactory $searchResultsFactory
      */
     public function __construct(
         CollectionFactory $collectionFactory,
         CollectionProcessorInterface $collectionProcessor,
+        Data $_helperData,
         ProductSearchResultsInterfaceFactory $searchResultsFactory
     ) {
         $this->collectionFactory    = $collectionFactory;
         $this->searchResultsFactory = $searchResultsFactory;
-        $this->collectionProcessor = $collectionProcessor;
+        $this->collectionProcessor  = $collectionProcessor;
+        $this->_helperData          = $_helperData;
     }
 
     /**
@@ -83,6 +92,9 @@ class Review
         /** @var Collection $collection */
         if (!$collection) {
             $collection = $this->collectionFactory->create()->addReviewDetailTable()->addAverageVotingTable();
+            if ($this->_helperData->getReviewListingConfig('store_owner_answer')) {
+                $collection->addReviewReplyTable();
+            }
         }
         $this->collectionProcessor->process($searchCriteria, $collection);
         $searchResult = $this->searchResultsFactory->create();

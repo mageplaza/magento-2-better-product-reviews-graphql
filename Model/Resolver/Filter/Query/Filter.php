@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\Query;
 
 use Magento\Framework\Api\SearchCriteriaInterface;
+use Mageplaza\BetterProductReviews\Helper\Data;
 use Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\SearchResult;
 use Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\SearchResultFactory;
 use Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\DataProvider\Review;
@@ -45,17 +46,25 @@ class Filter
     private $_review;
 
     /**
+     * @var Data
+     */
+    protected $_helperData;
+
+    /**
      * Filter constructor.
      *
      * @param SearchResultFactory $searchResultFactory
+     * @param Data $_helperData
      * @param Review $review
      */
     public function __construct(
         SearchResultFactory $searchResultFactory,
+        Data $_helperData,
         Review $review
     ) {
         $this->searchResultFactory = $searchResultFactory;
         $this->_review             = $review;
+        $this->_helperData         = $_helperData;
     }
 
     /**
@@ -76,6 +85,12 @@ class Filter
         $listArray = [];
         /** @var ReviewModel $item */
         foreach ($list->getItems() as $item) {
+            if (!$this->_helperData->getReviewListingConfig('store_owner_answer')) {
+                $item->setData('reply_enabled', 0);
+                $item->setData('reply_nickname', '');
+                $item->setData('reply_content', '');
+                $item->setData('reply_created_at', '');
+            }
             $listArray[$item->getId()]          = $item->getData();
             $listArray[$item->getId()]['model'] = $item;
         }

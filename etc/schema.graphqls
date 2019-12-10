@@ -87,6 +87,10 @@ type Review {
     mp_bpr_recommended_product: String @doc(description: ""),
     mp_bpr_verified_buyer: String @doc(description: ""),
     mp_bpr_helpful: Int @doc(description: ""),
+    reply_enabled: Int @doc(description: ""),
+    reply_nickname: String @doc(description: ""),
+    reply_content: String @doc(description: ""),
+    reply_created_at: String @doc(description: ""),
     avg_value: String @doc(description: ""),
     products: Product @resolver(class: "Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\Review\\Product") @doc(description: "The products assigned to a reviews")
 }

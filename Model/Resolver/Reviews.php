@@ -256,7 +256,12 @@ class Reviews implements ResolverInterface
      */
     protected function getReviewCollection()
     {
-        return $this->reviewCollection->create()->addReviewDetailTable()->addAverageVotingTable();
+        $collection = $this->reviewCollection->create()->addReviewDetailTable()->addAverageVotingTable();
+        if ($this->_helperData->getReviewListingConfig('store_owner_answer')) {
+            $collection->addReviewReplyTable();
+        }
+
+        return $collection;
     }
 
     /**
