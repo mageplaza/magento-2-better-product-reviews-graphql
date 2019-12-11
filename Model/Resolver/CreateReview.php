@@ -164,7 +164,6 @@ class CreateReview implements ResolverInterface
                 }
             }
             $object->aggregate();
-
             $collection = $object->getCollection();
             $collection->getSelect()->join(
                 ['mp_detail' => $collection->getTable('review_detail')],
@@ -174,8 +173,7 @@ class CreateReview implements ResolverInterface
                 ['mp_vote' => $collection->getTable('rating_option_vote')],
                 'main_table.review_id = mp_vote.review_id',
                 ['avg_value' => 'mp_vote.value']
-            )->where('main_table.review_id = ?', $object->getId());
-
+            )->where('main_table.review_id = ?', $object->getId())->group('main_table.review_id');
             return $collection->getFirstItem();
         }
 
