@@ -133,15 +133,15 @@ class CreateReview implements ResolverInterface
 
         $storeId    = isset($data['store_id']) ? $data['store_id'] : 1;
         $customerId = $this->isUserGuest($context->getUserId(), $productId);
+        $avgValue   = isset($data['avg_value']) ? (int) $data['avg_value'] : 5;
 
-        if ($customerId === false) {
+        if ($customerId === false || $avgValue > 5 || $avgValue < 0) {
             throw new GraphQlAuthorizationException(__('The current customer isn\'t authorized.'));
         }
 
-        $avgValue = isset($data['avg_value']) ? (int)$data['avg_value'] : '5';
-        $status   = isset($data['status_id']) ? $data['status_id'] : Review::STATUS_PENDING;
-        $ratings  = $this->getRatingCollection($storeId);
-        $object   = $this->_review->create()->setData($data);
+        $status  = isset($data['status_id']) ? $data['status_id'] : Review::STATUS_PENDING;
+        $ratings = $this->getRatingCollection($storeId);
+        $object  = $this->_review->create()->setData($data);
         $object->unsetData('review_id');
 
         if ($object->validate()) {
@@ -154,7 +154,7 @@ class CreateReview implements ResolverInterface
                 ->save();
             foreach ($ratings as $ratingId => $rating) {
                 foreach ($rating->getOptions() as $option) {
-                    if ((int)$option->getValue() === $avgValue) {
+                    if ((int) $option->getValue() === $avgValue) {
                         $this->_rating->create()
                             ->setRatingId($ratingId)
                             ->setReviewId($object->getId())
@@ -174,6 +174,7 @@ class CreateReview implements ResolverInterface
                 'main_table.review_id = mp_vote.review_id',
                 ['avg_value' => 'mp_vote.value']
             )->where('main_table.review_id = ?', $object->getId())->group('main_table.review_id');
+
             return $collection->getFirstItem();
         }
 
@@ -232,7 +233,7 @@ class CreateReview implements ResolverInterface
      */
     public function isEnableWrite($customerId, $productId)
     {
-        if ((int)$this->_helperData->getWriteReviewConfig('enabled') !== CustomerRestriction::PURCHASERS_ONLY) {
+        if ((int) $this->_helperData->getWriteReviewConfig('enabled') !== CustomerRestriction::PURCHASERS_ONLY) {
             return (bool) $this->_helperData->getWriteReviewConfig('enabled');
         }
 
