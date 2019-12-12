@@ -135,7 +135,7 @@ class CreateReview implements ResolverInterface
         $customerId = $this->isUserGuest($context->getUserId(), $productId);
         $avgValue   = isset($data['avg_value']) ? (int) $data['avg_value'] : 5;
 
-        if ($customerId === false || $avgValue > 5 || $avgValue < 0) {
+        if ($customerId === false || $avgValue > 5 || $avgValue <= 0) {
             throw new GraphQlAuthorizationException(__('The current customer isn\'t authorized.'));
         }
 
