@@ -1,0 +1,125 @@
+# Mageplaza
+#
+# NOTICE OF LICENSE
+#
+# This source file is subject to the Mageplaza.com license that is
+# available through the world-wide-web at this URL:
+# https://www.mageplaza.com/LICENSE.txt
+#
+# DISCLAIMER
+#
+# Do not edit or add to this file if you wish to upgrade this extension to newer
+# version in the future.
+#
+# @category    Mageplaza
+# @package     Mageplaza_BetterProductReviewsGraphQl
+# @copyright   Copyright (c) Mageplaza (https://www.mageplaza.com/)
+# @license     https://www.mageplaza.com/LICENSE.txt
+
+type Query {
+    mpBprGetReview(
+        action: String! @doc(description: "Action in query.")
+        filter: ReviewsFilterInput @doc(description: "Identifies which product attributes to search for and return.")
+        reviewId: Int @doc(description: "Review ID use in the filter. Apply when action is get_view_review.")
+        productId: Int @doc(description: "Product ID use in the filter. Apply when action is get_by_productId.")
+        productSku: String @doc(description: "Product Sku use in the filter. Apply when action is get_by_productSku.")
+        customerId: Int @doc(description: "Customer ID use in the filter. Apply when action is get_by_customerId.")
+        pageSize: Int = 10 @doc(description: "How many items should show on the page.")
+        currentPage: Int = 1 @doc(description: "Allows to using paging it start with 1.")
+    ):ReviewsOutput @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\Reviews") @doc(description: "The mpBprGetReview query searches for review that match the criteria specified in the filter.")
+}
+
+type Mutation {
+    mpBprCreateReview (
+        input: ReviewInput!
+        productId: Int! @doc(description: "Product ID used to add reviews.")
+    ): NewReview @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\CreateReview") @doc(description:"Create a new Review")
+}
+
+input ReviewsFilterInput {
+    created_at: FilterTypeInput  @doc(description: "Timestamp indicating when the post was created."),
+    entity_id: FilterTypeInput  @doc(description: "The Entity ID."),
+    status_id: FilterTypeInput  @doc(description: "Status code."),
+    detail_id: FilterTypeInput  @doc(description: "Review detail ID."),
+    title: FilterTypeInput  @doc(description: "Review title."),
+    nickname: FilterTypeInput  @doc(description: "User nickname"),
+    mp_bpr_helpful: FilterTypeInput  @doc(description: "Mageplaza BPR Helpful.")
+}
+input ReviewInput {
+    title: String! @doc(description: "Review title."),
+    detail: String! @doc(description: "Review detail."),
+    nickname: String! @doc(description: "User nickname."),
+    mp_bpr_images: String @doc(description: "Mageplaza BPR Review Images (Json)."),
+    mp_bpr_recommended_product: String @doc(description: "Mageplaza BPR Recommended Product."),
+    mp_bpr_verified_buyer: String @doc(description: "Mageplaza BPR Verified Buyer."),
+    mp_bpr_helpful: Int @doc(description: "Mageplaza BPR Helpful."),
+    avg_value: String! @doc(description: "Average summaried rating.")
+}
+
+
+type ReviewsOutput {
+    total_count: Int @doc(description: "The number of posts returned."),
+    items: [Review] @doc(description: "An array of post that match the specified search criteria.")
+    pageInfo: PageInfo @doc(description: "An object that includes the page_info and currentPage values specified in the query.")
+}
+
+type PageInfo {
+    pageSize: Int @doc(description: "How many items should show on the page.")
+    currentPage: Int @doc(description: "Allow page number to start with 1.")
+    hasNextPage: Boolean @doc(description: "Is next page")
+    hasPreviousPage: Boolean @doc(description: "Is previous page")
+    startPage: Int @doc(description: "Start page")
+    endPage: Int @doc(description: "End page")
+}
+
+type Review {
+    review_id: Int @doc(description: "An ID that uniquely identifies the review."),
+    created_at: String @doc(description: "Timestamp indicating when the category was created."),
+    entity_id: Int @doc(description: "Review entity ID."),
+    entity_pk_value: Int @doc(description: "An ID that identifies the product."),
+    status_id: Int @doc(description: "An ID that identifies the status."),
+    detail_id: Int @doc(description: "An ID that identifies the review detail."),
+    title: String @doc(description: "The title of the review."),
+    detail: String @doc(description: "The detail of the review."),
+    nickname: String @doc(description: "The nickname of the reviewer."),
+    customer_id: Int @doc(description: "An ID that identifies the customer."),
+    mp_bpr_images: String @doc(description: "Mageplaza BPR Review Images (Json)."),
+    mp_bpr_recommended_product: String @doc(description: "Mageplaza BPR Recommended Product."),
+    mp_bpr_verified_buyer: String @doc(description: "Mageplaza BPR Verified Buyer."),
+    mp_bpr_helpful: Int @doc(description: "Mageplaza BPR Helpful."),
+    reply_enabled: Int @doc(description: "Mageplaza reply is enabled."),
+    reply_nickname: String @doc(description: "The nickname of the admin."),
+    reply_content: String @doc(description: "The content of the reply."),
+    reply_created_at: String @doc(description: "The timestamp indicating when the reply is created."),
+    avg_value: String @doc(description: "The avg rating of the review."),
+    products: Product @resolver(class: "Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\Review\\Product") @doc(description: "The products assigned to a review.")
+}
+
+type NewReview {
+    review_id: Int @doc(description: "An ID that uniquely identifies the review."),
+    created_at: String @doc(description: "Timestamp indicating when the category was created."),
+    entity_id: Int @doc(description: "Review entity ID."),
+    entity_pk_value: Int @doc(description: "An ID that identifies the product."),
+    status_id: Int @doc(description: "An ID that identifies the status."),
+    detail_id: Int @doc(description: "An ID that identifies the review detail."),
+    title: String @doc(description: "The title of the review."),
+    detail: String @doc(description: "The detail of the review."),
+    nickname: String @doc(description: "The nickname of the reviewer."),
+    customer_id: Int @doc(description: "An ID that identifies the customer."),
+    mp_bpr_images: String @doc(description: "Mageplaza BPR Review Images (Json)."),
+    mp_bpr_recommended_product: String @doc(description: "Mageplaza BPR Recommended Product."),
+    mp_bpr_verified_buyer: String @doc(description: "Mageplaza BPR Verified Buyer."),
+    mp_bpr_helpful: Int @doc(description: "Mageplaza BPR Helpful."),
+    avg_value: String @doc(description: "The avg rating of the review.")
+}
+
+type Product {
+    entity_id: Int @doc(description: "The ID number assigned to the product."),
+    attribute_set_id: Int @doc(description: "The attribute set assigned to the product."),
+    type_id: String @doc(description: "Represent simple, virtual, downloadable, grouped or configirable product type."),
+    sku: String @doc(description: "A number or code assigned to a product to identify the product, options, price, and manufacturer."),
+    has_options: Int @doc(description: "Indicate whether a product option is available."),
+    required_options: Int @doc(description: "Indicate whether a product option is required."),
+    created_at: String @doc(description: "Timestamp indicating when the product was created."),
+    updated_at: String @doc(description: "Timestamp indicating when the product was updated.")
+}
