@@ -23,13 +23,13 @@ declare(strict_types=1);
 
 namespace Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\DataProvider;
 
+use Magento\Catalog\Api\Data\ProductSearchResultsInterfaceFactory;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
-use Mageplaza\BetterProductReviews\Helper\Data;
-use Mageplaza\Blog\Model\ResourceModel\Post\Collection;
-use Mageplaza\BetterProductReviews\Model\ResourceModel\Review\CollectionFactory;
-use Magento\Catalog\Api\Data\ProductSearchResultsInterfaceFactory;
 use Magento\Framework\Api\SearchResultsInterface;
+use Mageplaza\BetterProductReviews\Helper\Data;
+use Mageplaza\BetterProductReviews\Model\ResourceModel\Review\CollectionFactory;
+use Mageplaza\Blog\Model\ResourceModel\Post\Collection;
 
 /**
  * Product field data provider, used for GraphQL resolver processing.

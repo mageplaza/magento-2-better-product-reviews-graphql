@@ -29,10 +29,10 @@ use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\Builder as SearchCriteriaBuilder;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use Mageplaza\BetterProductReviews\Helper\Data;
 use Mageplaza\BetterProductReviews\Model\ResourceModel\Review\Collection;
 use Mageplaza\BetterProductReviews\Model\ResourceModel\Review\CollectionFactory;
 use Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\Query\Filter;
-use Mageplaza\BetterProductReviews\Helper\Data;
 
 /**
  * Class Reviews
