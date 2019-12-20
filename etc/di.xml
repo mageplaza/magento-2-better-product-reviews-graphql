@@ -25,7 +25,7 @@
         <arguments>
             <argument name="attributesInstances" xsi:type="array">
                 <item name="reviews" xsi:type="object">
-                    \Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\FilterArgument
+                    Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\FilterArgument
                 </item>
             </argument>
         </arguments>

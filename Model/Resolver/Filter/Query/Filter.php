@@ -24,11 +24,11 @@ declare(strict_types=1);
 namespace Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\Query;
 
 use Magento\Framework\Api\SearchCriteriaInterface;
-use Magento\Review\Model\Review as ReviewModel;
 use Mageplaza\BetterProductReviews\Helper\Data;
-use Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\DataProvider\Review;
 use Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\SearchResult;
 use Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\SearchResultFactory;
+use Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\DataProvider\Review;
+use Magento\Review\Model\Review as ReviewModel;
 
 /**
  * Retrieve filtered product data based off given search criteria in a format that GraphQL can interpret.

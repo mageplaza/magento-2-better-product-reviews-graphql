@@ -63,6 +63,11 @@ type ReviewsOutput {
     pageInfo: PageInfo @doc(description: "An object that includes the page_info and currentPage values specified in the query.")
 }
 
+type ReviewsOutputNoPage {
+    total_count: Int @doc(description: "The number of posts returned."),
+    items: [Review] @doc(description: "An array of post that match the specified search criteria.")
+}
+
 type PageInfo {
     pageSize: Int @doc(description: "How many items should show on the page.")
     currentPage: Int @doc(description: "Allow page number to start with 1.")
@@ -121,5 +126,6 @@ type Product {
     has_options: Int @doc(description: "Indicate whether a product option is available."),
     required_options: Int @doc(description: "Indicate whether a product option is required."),
     created_at: String @doc(description: "Timestamp indicating when the product was created."),
-    updated_at: String @doc(description: "Timestamp indicating when the product was updated.")
+    updated_at: String @doc(description: "Timestamp indicating when the product was updated."),
+    review: ReviewsOutputNoPage @resolver(class: "Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\Review\\Review") @doc(description: "The reviews assigned to a product.")
 }
