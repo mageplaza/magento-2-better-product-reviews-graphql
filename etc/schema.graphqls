@@ -37,7 +37,7 @@ type Mutation {
 }
 
 input ReviewsFilterInput {
-    created_at: FilterTypeInput  @doc(description: "Timestamp indicating when the post was created."),
+    created_at: FilterTypeInput  @doc(description: "Timestamp indicating when the review was created."),
     entity_id: FilterTypeInput  @doc(description: "The Entity ID."),
     status_id: FilterTypeInput  @doc(description: "Status code."),
     detail_id: FilterTypeInput  @doc(description: "Review detail ID."),
@@ -58,14 +58,14 @@ input ReviewInput {
 
 
 type ReviewsOutput {
-    total_count: Int @doc(description: "The number of posts returned."),
-    items: [Review] @doc(description: "An array of post that match the specified search criteria.")
+    total_count: Int @doc(description: "The number of reviews returned."),
+    items: [Review] @doc(description: "An array of revie that match the specified search criteria.")
     pageInfo: PageInfo @doc(description: "An object that includes the page_info and currentPage values specified in the query.")
 }
 
 type ReviewsOutputNoPage {
-    total_count: Int @doc(description: "The number of posts returned."),
-    items: [Review] @doc(description: "An array of post that match the specified search criteria.")
+    total_count: Int @doc(description: "The number of reviews returned."),
+    items: [Review] @doc(description: "An array of review that match the specified search criteria.")
 }
 
 type PageInfo {
