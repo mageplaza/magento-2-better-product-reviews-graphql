@@ -23,13 +23,10 @@ declare(strict_types=1);
 
 namespace Mageplaza\BetterProductReviewsGraphQl\Model\Resolver;
 
-use Exception;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Exception\GraphQlAuthorizationException;
-use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
-use Magento\Framework\GraphQl\Query\Resolver\Value;
 use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 use Magento\Review\Model\Rating;
 use Magento\Review\Model\Rating\Option;
