@@ -55,7 +55,7 @@ class Product implements ResolverInterface
         ProductModel $product,
         SearchResultFactory $searchResultFactory
     ) {
-        $this->_product              = $product;
+        $this->_product            = $product;
         $this->searchResultFactory = $searchResultFactory;
     }
 
@@ -64,9 +64,9 @@ class Product implements ResolverInterface
      */
     public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null)
     {
-        $productId = $value['entity_pk_value'];
-        $product = $this->_product->load($productId);
-        $listArray = [];
+        $productId                      = $value['entity_pk_value'];
+        $product                        = $this->_product->load($productId);
+        $listArray                      = [];
         $listArray[$productId]          = $product->getData();
         $listArray[$productId]['model'] = $product;
 
