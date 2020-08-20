@@ -145,8 +145,8 @@ class CreateReview implements ResolverInterface
             throw new GraphQlAuthorizationException(__('The avg_value value must be between 0 and 5.'));
         }
 
-        $status                        = isset($data['status_id']) ? $data['status_id'] : Review::STATUS_PENDING;
-        $data['mp_bpr_verified_buyer'] = $this->isEnableWrite($customerId, $productId)
+        $status = isset($data['status_id']) ? $data['status_id'] : Review::STATUS_PENDING;
+        $data['mp_bpr_verified_buyer'] = $this->checkIsBuyer($customerId, $productId)
             ? BuyerType::VERIFIED_BUYER : BuyerType::NOT_VERIFIED_BUYER;
         $ratings                       = $this->getRatingCollection($storeId);
         /** @var \Magento\Review\Model\Review $reviewModel */
@@ -243,14 +243,8 @@ class CreateReview implements ResolverInterface
      *
      * @return bool
      */
-    public function isEnableWrite($customerId, $productId): bool
+    protected function checkIsBuyer($customerId, $productId): bool
     {
-        if ((int) $this->_helperData->getWriteReviewConfig('enabled') !== CustomerRestriction::PURCHASERS_ONLY) {
-            return (bool) $this->_helperData->getWriteReviewConfig('enabled');
-        }
-
-        $result = false;
-
         if ($customerId) {
             $orders = $this->_orderFactory->create()->getCollection()
                 ->addFieldToFilter('customer_id', $customerId)
@@ -261,14 +255,28 @@ class CreateReview implements ResolverInterface
                  */
                 foreach ($order->getAllVisibleItems() as $item) {
                     /** @var Item $item */
-                    if ($productId == $item->getProductId()) {
-                        $result = true;
-                        break;
+                    if ($productId === (int) $item->getProductId()) {
+                        return true;
                     }
                 }
             }
         }
 
-        return $result;
+        return false;
+    }
+
+    /**
+     * @param $customerId
+     * @param $productId
+     *
+     * @return bool
+     */
+    public function isEnableWrite($customerId, $productId): bool
+    {
+        if ((int) $this->_helperData->getWriteReviewConfig('enabled') !== CustomerRestriction::PURCHASERS_ONLY) {
+            return (bool) $this->_helperData->getWriteReviewConfig('enabled');
+        }
+
+        return $this->checkIsBuyer($customerId, $productId);
     }
 }
