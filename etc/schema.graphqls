@@ -37,7 +37,7 @@ type Mutation {
 }
 
 input ReviewsFilterInput {
-    created_at: FilterTypeInput  @doc(description: "Timestamp indicating when the post was created."),
+    created_at: FilterTypeInput  @doc(description: "Timestamp indicating when the review was created."),
     entity_id: FilterTypeInput  @doc(description: "The Entity ID."),
     status_id: FilterTypeInput  @doc(description: "Status code."),
     detail_id: FilterTypeInput  @doc(description: "Review detail ID."),
@@ -51,16 +51,20 @@ input ReviewInput {
     nickname: String! @doc(description: "User nickname."),
     mp_bpr_images: String @doc(description: "Mageplaza BPR Review Images (Json)."),
     mp_bpr_recommended_product: String @doc(description: "Mageplaza BPR Recommended Product."),
-    mp_bpr_verified_buyer: String @doc(description: "Mageplaza BPR Verified Buyer."),
     mp_bpr_helpful: Int @doc(description: "Mageplaza BPR Helpful."),
     avg_value: String! @doc(description: "Average summaried rating.")
 }
 
 
 type ReviewsOutput {
-    total_count: Int @doc(description: "The number of posts returned."),
-    items: [Review] @doc(description: "An array of post that match the specified search criteria.")
+    total_count: Int @doc(description: "The number of reviews returned."),
+    items: [Review] @doc(description: "An array of revie that match the specified search criteria.")
     pageInfo: PageInfo @doc(description: "An object that includes the page_info and currentPage values specified in the query.")
+}
+
+type ReviewsOutputNoPage {
+    total_count: Int @doc(description: "The number of reviews returned."),
+    items: [Review] @doc(description: "An array of review that match the specified search criteria.")
 }
 
 type PageInfo {
@@ -121,5 +125,6 @@ type Product {
     has_options: Int @doc(description: "Indicate whether a product option is available."),
     required_options: Int @doc(description: "Indicate whether a product option is required."),
     created_at: String @doc(description: "Timestamp indicating when the product was created."),
-    updated_at: String @doc(description: "Timestamp indicating when the product was updated.")
+    updated_at: String @doc(description: "Timestamp indicating when the product was updated."),
+    review: ReviewsOutputNoPage @resolver(class: "Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\Review\\Review") @doc(description: "The reviews assigned to a product.")
 }

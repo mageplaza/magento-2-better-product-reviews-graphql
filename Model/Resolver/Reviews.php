@@ -29,10 +29,10 @@ use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\Builder as SearchCriteriaBuilder;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
-use Mageplaza\BetterProductReviews\Helper\Data;
 use Mageplaza\BetterProductReviews\Model\ResourceModel\Review\Collection;
 use Mageplaza\BetterProductReviews\Model\ResourceModel\Review\CollectionFactory;
 use Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\Query\Filter;
+use Mageplaza\BetterProductReviews\Helper\Data;
 
 /**
  * Class Reviews
@@ -171,7 +171,7 @@ class Reviews implements ResolverInterface
      * @return Collection
      * @throws GraphQlInputException
      */
-    protected function getViewReview($args)
+    protected function getViewReview($args) : Collection
     {
         if (!isset($args['reviewId'])) {
             throw new GraphQlInputException(__('reviewId value is not null'));
@@ -188,7 +188,7 @@ class Reviews implements ResolverInterface
      * @return Collection
      * @throws GraphQlInputException
      */
-    protected function getByProductId($args)
+    protected function getByProductId($args) : Collection
     {
         if (!isset($args['productId'])) {
             throw new GraphQlInputException(__('productId value is not null'));
@@ -211,7 +211,7 @@ class Reviews implements ResolverInterface
      * @return Collection
      * @throws GraphQlInputException
      */
-    protected function getByProductSku($args)
+    protected function getByProductSku($args) : Collection
     {
         if (!isset($args['productSku'])) {
             throw new GraphQlInputException(__('Action value is not null'));
@@ -234,7 +234,7 @@ class Reviews implements ResolverInterface
      * @return Collection
      * @throws GraphQlInputException
      */
-    protected function getByCustomerId($args)
+    protected function getByCustomerId($args) : Collection
     {
         if (!isset($args['customerId'])) {
             throw new GraphQlInputException(__('customerId value is not null'));
@@ -254,7 +254,7 @@ class Reviews implements ResolverInterface
     /**
      * @return Collection
      */
-    protected function getReviewCollection()
+    protected function getReviewCollection() : Collection
     {
         $collection = $this->reviewCollection->create()->addReviewDetailTable()->addAverageVotingTable();
         if ($this->_helperData->getReviewListingConfig('store_owner_answer')) {

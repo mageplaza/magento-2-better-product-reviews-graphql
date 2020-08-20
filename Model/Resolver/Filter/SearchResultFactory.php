@@ -48,10 +48,9 @@ class SearchResultFactory
      *
      * @param int $totalCount
      * @param array $itemsSearchResult
-     *
      * @return SearchResult
      */
-    public function create(int $totalCount, array $itemsSearchResult): SearchResult
+    public function create(int $totalCount, array $itemsSearchResult) : SearchResult
     {
         return $this->objectManager->create(
             SearchResult::class,

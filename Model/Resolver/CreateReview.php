@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Mageplaza\BetterProductReviewsGraphQl\Model\Resolver;
 
-use Exception;
 use Magento\Catalog\Model\Product;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
@@ -31,17 +30,20 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlAuthorizationException;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
-use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
-use Magento\Framework\GraphQl\Query\Resolver\Value;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
+use Magento\Review\Model\Rating;
+use Magento\Review\Model\Rating\Option;
 use Magento\Review\Model\RatingFactory;
 use Magento\Review\Model\Review;
 use Magento\Review\Model\ReviewFactory;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Item;
 use Magento\Sales\Model\OrderFactory;
+use Magento\Store\Model\StoreManagerInterface;
 use Mageplaza\BetterProductReviews\Helper\Data;
+use Mageplaza\BetterProductReviews\Model\Config\Source\BuyerType;
 use Mageplaza\BetterProductReviews\Model\Config\Source\System\CustomerRestriction;
 
 /**
@@ -81,12 +83,18 @@ class CreateReview implements ResolverInterface
     protected $_orderFactory;
 
     /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * CreateReview constructor.
      *
      * @param RatingFactory $ratingFactory
      * @param Product $productModel
      * @param CustomerRepositoryInterface $customerRepositoryInterface
      * @param Data $helperData
+     * @param StoreManagerInterface $storeManager
      * @param OrderFactory $orderFactory
      * @param ReviewFactory $reviewFactory
      */
@@ -95,6 +103,7 @@ class CreateReview implements ResolverInterface
         Product $productModel,
         CustomerRepositoryInterface $customerRepositoryInterface,
         Data $helperData,
+        StoreManagerInterface $storeManager,
         OrderFactory $orderFactory,
         ReviewFactory $reviewFactory
     ) {
@@ -102,21 +111,13 @@ class CreateReview implements ResolverInterface
         $this->_review                      = $reviewFactory;
         $this->_product                     = $productModel;
         $this->_orderFactory                = $orderFactory;
+        $this->storeManager                 = $storeManager;
         $this->_helperData                  = $helperData;
         $this->_customerRepositoryInterface = $customerRepositoryInterface;
     }
 
     /**
-     * Fetches the data from persistence models and format it according to the GraphQL schema.
-     *
-     * @param Field $field
-     * @param ContextInterface $context
-     * @param ResolveInfo $info
-     * @param array|null $value
-     * @param array|null $args
-     *
-     * @return mixed|Value
-     * @throws Exception
+     * @inheritdoc
      */
     public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null)
     {
@@ -131,21 +132,29 @@ class CreateReview implements ResolverInterface
             throw new GraphQlInputException(__('The Product does not exit.'));
         }
 
-        $storeId    = isset($data['store_id']) ? $data['store_id'] : 1;
-        $customerId = $this->isUserGuest($context->getUserId(), $productId);
-        $avgValue   = isset($data['avg_value']) ? (int) $data['avg_value'] : 5;
+        $storeId    = $this->storeManager->getStore()->getId();
+        $customerId = $context->getUserId() ?: null;
+        $avgValue   = (int) $data['avg_value'];
 
-        if ($customerId === false || $avgValue > 5 || $avgValue <= 0) {
-            throw new GraphQlAuthorizationException(__('The current customer isn\'t authorized.'));
+        if ($this->isUserGuest($customerId, $productId) === false) {
+            $noticeMessage = $this->_helperData->getWriteReviewConfig('notice_message') ?? __('The current customer isn\'t authorized.');
+            throw new GraphQlAuthorizationException($noticeMessage);
         }
 
-        $status  = isset($data['status_id']) ? $data['status_id'] : Review::STATUS_PENDING;
-        $ratings = $this->getRatingCollection($storeId);
-        $object  = $this->_review->create()->setData($data);
-        $object->unsetData('review_id');
+        if ($avgValue > 5 || $avgValue <= 0) {
+            throw new GraphQlAuthorizationException(__('The avg_value value must be between 0 and 5.'));
+        }
 
-        if ($object->validate()) {
-            $object->setEntityId($object->getEntityIdByCode(Review::ENTITY_PRODUCT_CODE))
+        $status = isset($data['status_id']) ? $data['status_id'] : Review::STATUS_PENDING;
+        $data['mp_bpr_verified_buyer'] = $this->checkIsBuyer($customerId, $productId)
+            ? BuyerType::VERIFIED_BUYER : BuyerType::NOT_VERIFIED_BUYER;
+        $ratings                       = $this->getRatingCollection($storeId);
+        /** @var \Magento\Review\Model\Review $reviewModel */
+        $reviewModel = $this->_review->create()->setData($data);
+        $reviewModel->unsetData('review_id');
+
+        if ($reviewModel->validate()) {
+            $reviewModel->setEntityId($reviewModel->getEntityIdByCode(Review::ENTITY_PRODUCT_CODE))
                 ->setEntityPkValue($productId)
                 ->setStatusId($status)
                 ->setCustomerId($customerId)
@@ -153,18 +162,20 @@ class CreateReview implements ResolverInterface
                 ->setStores([$storeId])
                 ->save();
             foreach ($ratings as $ratingId => $rating) {
+                /** @var Rating $rating */
                 foreach ($rating->getOptions() as $option) {
+                    /** @var Option $option */
                     if ((int) $option->getValue() === $avgValue) {
                         $this->_rating->create()
                             ->setRatingId($ratingId)
-                            ->setReviewId($object->getId())
+                            ->setReviewId($reviewModel->getId())
                             ->setCustomerId($customerId)
                             ->addOptionVote($option->getId(), $productId);
                     }
                 }
             }
-            $object->aggregate();
-            $collection = $object->getCollection();
+            $reviewModel->aggregate();
+            $collection = $reviewModel->getCollection();
             $collection->getSelect()->join(
                 ['mp_detail' => $collection->getTable('review_detail')],
                 'main_table.review_id = mp_detail.review_id',
@@ -173,7 +184,9 @@ class CreateReview implements ResolverInterface
                 ['mp_vote' => $collection->getTable('rating_option_vote')],
                 'main_table.review_id = mp_vote.review_id',
                 ['avg_value' => 'mp_vote.value']
-            )->where('main_table.review_id = ?', $object->getId())->group('main_table.review_id');
+            )->where('main_table.review_id = ?', $reviewModel->getId())
+                ->group('main_table.review_id')
+                ->limit(1);
 
             return $collection->getFirstItem();
         }
@@ -184,10 +197,9 @@ class CreateReview implements ResolverInterface
     /**
      * @param $storeId
      *
-     * @return mixed
-     * @throws LocalizedException
+     * @return AbstractCollection
      */
-    public function getRatingCollection($storeId)
+    public function getRatingCollection($storeId): AbstractCollection
     {
         return $this->_rating->create()->getResourceCollection()->addEntityFilter(
             'product'
@@ -201,24 +213,24 @@ class CreateReview implements ResolverInterface
     }
 
     /**
-     * @param $currentUserId
+     * @param string $currentUserId
      * @param $productId
      *
-     * @return bool|null
+     * @return bool
      * @throws LocalizedException
      */
-    public function isUserGuest($currentUserId, $productId)
+    public function isUserGuest($currentUserId, $productId): bool
     {
         if ($this->_helperData->isEnabled() && $this->isEnableWrite($currentUserId, $productId)) {
-            $mpGroupArray = explode(',', $this->_helperData->getWriteReviewConfig('customer_group'));
+            $allowCustomerGroup = explode(',', $this->_helperData->getWriteReviewConfig('customer_group'));
             try {
                 $customerGroup = $this->_customerRepositoryInterface->getById($currentUserId)->getGroupId();
             } catch (NoSuchEntityException $exception) {
                 $customerGroup = '0';
             }
 
-            if (in_array($customerGroup, $mpGroupArray, true)) {
-                return $currentUserId ?: null;
+            if (in_array($customerGroup, $allowCustomerGroup, true)) {
+                return true;
             }
         }
 
@@ -231,14 +243,8 @@ class CreateReview implements ResolverInterface
      *
      * @return bool
      */
-    public function isEnableWrite($customerId, $productId)
+    protected function checkIsBuyer($customerId, $productId): bool
     {
-        if ((int) $this->_helperData->getWriteReviewConfig('enabled') !== CustomerRestriction::PURCHASERS_ONLY) {
-            return (bool) $this->_helperData->getWriteReviewConfig('enabled');
-        }
-
-        $result = false;
-
         if ($customerId) {
             $orders = $this->_orderFactory->create()->getCollection()
                 ->addFieldToFilter('customer_id', $customerId)
@@ -249,14 +255,28 @@ class CreateReview implements ResolverInterface
                  */
                 foreach ($order->getAllVisibleItems() as $item) {
                     /** @var Item $item */
-                    if ($productId == $item->getProductId()) {
-                        $result = true;
-                        break;
+                    if ($productId === (int) $item->getProductId()) {
+                        return true;
                     }
                 }
             }
         }
 
-        return $result;
+        return false;
+    }
+
+    /**
+     * @param $customerId
+     * @param $productId
+     *
+     * @return bool
+     */
+    public function isEnableWrite($customerId, $productId): bool
+    {
+        if ((int) $this->_helperData->getWriteReviewConfig('enabled') !== CustomerRestriction::PURCHASERS_ONLY) {
+            return (bool) $this->_helperData->getWriteReviewConfig('enabled');
+        }
+
+        return $this->checkIsBuyer($customerId, $productId);
     }
 }

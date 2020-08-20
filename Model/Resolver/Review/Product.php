@@ -27,6 +27,7 @@ use Magento\Catalog\Model\Product as ProductModel;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\SearchResultFactory;
 
 /**
  * Class Topic
@@ -40,14 +41,22 @@ class Product implements ResolverInterface
     protected $_product;
 
     /**
+     * @var SearchResultFactory
+     */
+    protected $searchResultFactory;
+
+    /**
      * Product constructor.
      *
      * @param ProductModel $product
+     * @param SearchResultFactory $searchResultFactory
      */
     public function __construct(
-        ProductModel $product
+        ProductModel $product,
+        SearchResultFactory $searchResultFactory
     ) {
-        $this->_product = $product;
+        $this->_product            = $product;
+        $this->searchResultFactory = $searchResultFactory;
     }
 
     /**
@@ -55,8 +64,14 @@ class Product implements ResolverInterface
      */
     public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null)
     {
-        $productId = $value['entity_pk_value'];
+        $productId                      = $value['entity_pk_value'];
+        $product                        = $this->_product->load($productId);
+        $listArray                      = [];
+        $listArray[$productId]          = $product->getData();
+        $listArray[$productId]['model'] = $product;
 
-        return $this->_product->load($productId);
+        $searchResult = $this->searchResultFactory->create(1, $listArray);
+
+        return $searchResult->getItemsSearchResult()[$productId];
     }
 }
