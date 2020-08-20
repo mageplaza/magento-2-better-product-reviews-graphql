@@ -43,6 +43,7 @@ use Magento\Sales\Model\Order\Item;
 use Magento\Sales\Model\OrderFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Mageplaza\BetterProductReviews\Helper\Data;
+use Mageplaza\BetterProductReviews\Model\Config\Source\BuyerType;
 use Mageplaza\BetterProductReviews\Model\Config\Source\System\CustomerRestriction;
 
 /**
@@ -144,8 +145,10 @@ class CreateReview implements ResolverInterface
             throw new GraphQlAuthorizationException(__('The avg_value value must be between 0 and 5.'));
         }
 
-        $status  = isset($data['status_id']) ? $data['status_id'] : Review::STATUS_PENDING;
-        $ratings = $this->getRatingCollection($storeId);
+        $status                        = isset($data['status_id']) ? $data['status_id'] : Review::STATUS_PENDING;
+        $data['mp_bpr_verified_buyer'] = $this->isEnableWrite($customerId, $productId)
+            ? BuyerType::VERIFIED_BUYER : BuyerType::NOT_VERIFIED_BUYER;
+        $ratings                       = $this->getRatingCollection($storeId);
         /** @var \Magento\Review\Model\Review $reviewModel */
         $reviewModel = $this->_review->create()->setData($data);
         $reviewModel->unsetData('review_id');
