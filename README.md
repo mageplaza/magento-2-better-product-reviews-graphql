@@ -1,4 +1,4 @@
-# Better Product Reviews GraphQl
+# Magento 2 Product Reviews GraphQL / PWA
 This module provides type and resolver information for the GraphQl module to generate catalog reviews information endpoints.
 
 ## How to install
