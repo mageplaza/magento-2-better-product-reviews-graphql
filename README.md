@@ -1,7 +1,7 @@
 # Better Product Reviews GraphQl
 This module provides type and resolver information for the GraphQl module to generate catalog reviews information endpoints.
 
-## How to install
+## 1. How to install
 Run the following command in Magento 2 root folder:
 
 ```
@@ -10,7 +10,7 @@ php bin/magento setup:upgrade
 php bin/magento setup:static-content:deploy
 ```
 
-## How to use
+## 2. How to use
 
 To start working with GraphQl in Magento, you need the following:
 - Use Magento 2.3.x. Returns site to developer mode
@@ -19,3 +19,7 @@ To start working with GraphQl in Magento, you need the following:
 - Mageplaza-supported queries are fully written in the **Description** section of `Query.productreviews.Products`
 
 ![](https://i.imgur.com/8OW0Y2G.png)
+
+## 3. Devdocs
+- [Better Product Reviews API & examples](https://documenter.getpostman.com/view/5977924/SWE29gRM?version=latest)
+- [Better Product Reviews GraphQL & examples](https://documenter.getpostman.com/view/10589000/TVYGcdFp)
