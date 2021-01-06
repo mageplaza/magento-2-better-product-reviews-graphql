@@ -1,4 +1,4 @@
-# Magento 2 Product Reviews GraphQL / PWA
+# Magento 2 Product Reviews GraphQL
 
 **Magento 2 Better Product Reviews GraphQL is now a part of Mageplaza Better Product Reviews extension that adds GraphQL features.** This is helpful for PWA compatibility. The module provides type and resolver information for the GraphQl module to generate catalog reviews information endpoints.
 
