@@ -37,17 +37,18 @@ type Mutation {
     mpBPrAddImage(
         input : ImageReviewInput!
         reviewId: Int!
-    ):Review @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\AddImageReview") @doc(description:"Add an Image to the Review")
+    ):Review @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\AddImageReview") @doc(description:"Add a Image to the Review")
     mpBPrRemoveImage(
         position : Int!
         reviewId: Int!
-    ):Review @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\RemoveImageReview") @doc(description:"Review an Image from Review")
+    ):Review @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\RemoveImageReview") @doc(description:"Remove a Image from Review")
 }
 
 input ImageReviewInput {
     name : String!
     type_file : String!
     base_64_encoded_data : String!
+    label : String
 }
 
 input ReviewsFilterInput {
@@ -67,7 +68,6 @@ input ReviewInput {
     mp_bpr_recommended_product: String @doc(description: "Mageplaza BPR Recommended Product."),
     mp_bpr_helpful: Int @doc(description: "Mageplaza BPR Helpful."),
     avg_value: String! @doc(description: "Average summaried rating.")
-    image_review : ImageReviewInput
 }
 
 
