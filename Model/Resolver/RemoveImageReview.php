@@ -25,7 +25,6 @@ namespace Mageplaza\BetterProductReviewsGraphQl\Model\Resolver;
 
 use Exception;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
-use Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Review\Model\Review;
 
@@ -40,7 +39,6 @@ class RemoveImageReview extends AbstractImageReview implements ResolverInterface
      *
      * @return Review|string
      * @throws GraphQlInputException
-     * @throws GraphQlNoSuchEntityException
      */
     protected function processImage($args)
     {
@@ -52,7 +50,7 @@ class RemoveImageReview extends AbstractImageReview implements ResolverInterface
         try {
             $review = $this->_imageHelper->removeImage($reviewId, $position);
         } catch (Exception $e) {
-            throw new GraphQlNoSuchEntityException(__($e->getMessage()));
+            throw new GraphQlInputException(__($e->getMessage()));
         }
 
         return $review;

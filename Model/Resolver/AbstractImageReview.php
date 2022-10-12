@@ -26,6 +26,7 @@ namespace Mageplaza\BetterProductReviewsGraphQl\Model\Resolver;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\Exception\GraphQlAuthorizationException;
 use Magento\Framework\GraphQl\Exception\GraphQlInputException;
+use Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
 use Mageplaza\BetterProductReviews\Helper\Data;
@@ -75,6 +76,9 @@ abstract class AbstractImageReview implements ResolverInterface
      */
     public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null)
     {
+        if (!$this->_helperData->isEnabled($args['storeId'])){
+            throw new GraphQlNoSuchEntityException(__("The Better Product Reviews is disabled"));
+        }
         if (!isset($args['input']) || !is_array($args['input']) || empty($args['input'])) {
             if (!$args['reviewId'] && !$args['position']) {
                 throw new GraphQlInputException(__('"input" value should be specified'));
@@ -103,10 +107,14 @@ abstract class AbstractImageReview implements ResolverInterface
      * @param $reviewId
      *
      * @return array|mixed|null
-     * @throws \Exception
+     * @throws GraphQlInputException
      */
     protected function getProductId($reviewId)
     {
-        return $this->_imageHelper->getReviewObj($reviewId)->getData('entity_pk_value');
+        try {
+            return $this->_imageHelper->getReviewObj($reviewId)->getData('entity_pk_value');
+        } catch (\Exception $e) {
+            throw new GraphQlInputException(__($e->getMessage()));
+        }
     }
 }

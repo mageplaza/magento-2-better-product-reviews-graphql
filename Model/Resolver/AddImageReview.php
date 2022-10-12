@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Mageplaza\BetterProductReviewsGraphQl\Model\Resolver;
 
 use Exception;
-use Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException;
+use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Review\Model\Review;
 
@@ -38,7 +38,7 @@ class AddImageReview extends AbstractImageReview implements ResolverInterface
      * @param array $args
      *
      * @return Review | string
-     * @throws GraphQlNoSuchEntityException
+     * @throws GraphQlInputException
      */
     protected function processImage($args)
     {
@@ -51,7 +51,7 @@ class AddImageReview extends AbstractImageReview implements ResolverInterface
         try {
             $review = $this->_imageHelper->addMoreImage($reviewId, $image, $fileName, $typeFile, $label);
         } catch (Exception $e) {
-            throw new GraphQlNoSuchEntityException(__($e->getMessage()));
+            throw new GraphQlInputException(__($e->getMessage()));
         }
 
         return $review;

@@ -41,6 +41,7 @@ type Mutation {
     mpBPrRemoveImage(
         position : Int!
         reviewId: Int!
+        storeId : String
     ):Review @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\RemoveImageReview") @doc(description:"Remove a Image from Review")
 }
 
@@ -49,6 +50,7 @@ input ImageReviewInput {
     type_file : String!
     base_64_encoded_data : String!
     label : String
+    storeId : String
 }
 
 input ReviewsFilterInput {
