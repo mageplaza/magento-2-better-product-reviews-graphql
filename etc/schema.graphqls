@@ -34,6 +34,21 @@ type Mutation {
         input: ReviewInput!
         productId: Int! @doc(description: "Product ID used to add reviews.")
     ): NewReview @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\CreateReview") @doc(description:"Create a new Review")
+    mpBPrAddImage(
+        input : ImageReviewInput!
+        reviewId: Int!
+    ):Review @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\AddImageReview") @doc(description:"Add a Image to the Review")
+    mpBPrRemoveImage(
+        position : Int!
+        reviewId: Int!
+    ):Review @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\RemoveImageReview") @doc(description:"Remove a Image from Review")
+}
+
+input ImageReviewInput {
+    name : String!
+    type_file : String!
+    base_64_encoded_data : String!
+    label : String
 }
 
 input ReviewsFilterInput {

@@ -137,8 +137,8 @@ class CreateReview implements ResolverInterface
         $avgValue   = (int) $data['avg_value'];
 
         if ($this->isUserGuest($customerId, $productId) === false) {
-            $noticeMessage = $this->_helperData->getWriteReviewConfig('notice_message') ?? __('The current customer isn\'t authorized.');
-            throw new GraphQlAuthorizationException($noticeMessage);
+            $noticeMessage = $this->_helperData->getWriteReviewConfig('notice_message') ?? 'The current customer isn\'t authorized.';
+            throw new GraphQlAuthorizationException(__($noticeMessage));
         }
 
         if ($avgValue > 5 || $avgValue <= 0) {
