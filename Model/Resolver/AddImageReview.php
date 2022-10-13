@@ -48,8 +48,9 @@ class AddImageReview extends AbstractImageReview implements ResolverInterface
         $typeFile = $data['type_file'];
         $label    = $data['label'] ?? '';
         $reviewId = $args['reviewId'];
+        $storeId  = $data['storeId'];
         try {
-            $review = $this->_imageHelper->addMoreImage($reviewId, $image, $fileName, $typeFile, $label);
+            $review = $this->_imageHelper->addMoreImage($reviewId, $image, $fileName, $typeFile, $label, $storeId);
         } catch (Exception $e) {
             throw new GraphQlInputException(__($e->getMessage()));
         }

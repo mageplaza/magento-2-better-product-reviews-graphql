@@ -45,10 +45,12 @@ class RemoveImageReview extends AbstractImageReview implements ResolverInterface
         if (!isset($args['position']) || empty($args['position'])) {
             throw new GraphQlInputException(__('"position" value should be specified'));
         }
-        $reviewId   = $args['reviewId'];
-        $position   = $args['position'];
+        $reviewId = $args['reviewId'];
+        $position = $args['position'];
+        $storeId  = $args['storeId'];
+
         try {
-            $review = $this->_imageHelper->removeImage($reviewId, $position);
+            $review = $this->_imageHelper->removeImage($reviewId, $position, $storeId);
         } catch (Exception $e) {
             throw new GraphQlInputException(__($e->getMessage()));
         }

@@ -76,7 +76,13 @@ abstract class AbstractImageReview implements ResolverInterface
      */
     public function resolve(Field $field, $context, ResolveInfo $info, array $value = null, array $args = null)
     {
-        if (!$this->_helperData->isEnabled($args['storeId'])){
+
+        $data = &$args['input'];
+
+        if (!isset($data['storeId'])) {
+            $data['storeId'] = 0;
+        }
+        if (!$this->_helperData->isEnabled($data['storeId'])) {
             throw new GraphQlNoSuchEntityException(__("The Better Product Reviews is disabled"));
         }
         if (!isset($args['input']) || !is_array($args['input']) || empty($args['input'])) {
