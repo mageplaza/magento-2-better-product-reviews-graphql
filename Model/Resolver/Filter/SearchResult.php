@@ -41,6 +41,8 @@ class SearchResult
     private $itemsSearchResult;
 
     /**
+     * SearchResult constructor.
+     *
      * @param int $totalCount
      * @param array $itemsSearchResult
      */

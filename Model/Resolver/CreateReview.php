@@ -149,7 +149,7 @@ class CreateReview implements ResolverInterface
         $data['mp_bpr_verified_buyer'] = $this->checkIsBuyer($customerId, $productId)
             ? BuyerType::VERIFIED_BUYER : BuyerType::NOT_VERIFIED_BUYER;
         $ratings                       = $this->getRatingCollection($storeId);
-        /** @var \Magento\Review\Model\Review $reviewModel */
+        /** @var Review $reviewModel */
         $reviewModel = $this->_review->create()->setData($data);
         $reviewModel->unsetData('review_id');
 
@@ -198,6 +198,7 @@ class CreateReview implements ResolverInterface
      * @param $storeId
      *
      * @return AbstractCollection
+     * @throws LocalizedException
      */
     public function getRatingCollection($storeId): AbstractCollection
     {
