@@ -50,7 +50,7 @@ class AddImageReview extends AbstractImageReview implements ResolverInterface
         $reviewId = $args['reviewId'];
         $storeId  = $data['storeId'];
         try {
-            $this->validateVideoInput($typeFile, $storeId);
+            $this->validateInput($typeFile, $storeId);
             $review = $this->_imageHelper->addMoreImage($reviewId, $image, $fileName, $typeFile, $label, $storeId);
         } catch (Exception $e) {
             throw new GraphQlInputException(__($e->getMessage()));
@@ -65,13 +65,13 @@ class AddImageReview extends AbstractImageReview implements ResolverInterface
      *
      * @throws GraphQlInputException
      */
-    public function validateVideoInput(string $typeFile, $storeId)
+    public function validateInput(string $typeFile, $storeId)
     {
         if (in_array($typeFile, $this->_helperData->getVideoTypesArrWithNotDot())
             && !$this->_helperData->isUploadVideo($storeId)) {
             throw new  GraphQlInputException(__('Can not upload Video file'));
         }
-        if (!in_array($typeFile, $this->_helperData->getVideoTypesArrWithNotDot())) {
+        if (!in_array($typeFile, $this->_helperData->getAllowExtensionFiles())) {
             throw new GraphQlInputException(__('Disallowed file type.'));
         }
     }
