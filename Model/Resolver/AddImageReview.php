@@ -50,6 +50,10 @@ class AddImageReview extends AbstractImageReview implements ResolverInterface
         $reviewId = $args['reviewId'];
         $storeId  = $data['storeId'];
         try {
+            if (in_array($typeFile, $this->_helperData->getVideoTypesArrWithNotDot())
+                && !$this->_helperData->isUploadVideo($storeId)) {
+                throw new  GraphQlInputException(__('Can not upload Video file'));
+            }
             $review = $this->_imageHelper->addMoreImage($reviewId, $image, $fileName, $typeFile, $label, $storeId);
         } catch (Exception $e) {
             throw new GraphQlInputException(__($e->getMessage()));
