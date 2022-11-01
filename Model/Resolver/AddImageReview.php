@@ -67,6 +67,10 @@ class AddImageReview extends AbstractImageReview implements ResolverInterface
      */
     public function validateInput(string $typeFile, $storeId)
     {
+        if (!$this->_helperData->isUploadImageEnabled($storeId)
+            && in_array($typeFile, $this->_helperData->getAllowImgFiles())) {
+            throw new GraphQlInputException(__('Can not upload Image file.'));
+        }
         if (in_array($typeFile, $this->_helperData->getVideoTypesArrWithNotDot())
             && !$this->_helperData->isUploadVideo($storeId)) {
             throw new  GraphQlInputException(__('Can not upload Video file'));
