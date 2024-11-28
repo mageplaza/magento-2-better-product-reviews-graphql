@@ -137,8 +137,8 @@ class CreateReview implements ResolverInterface
         $avgValue   = (int) $data['avg_value'];
 
         if ($this->isUserGuest($customerId, $productId) === false) {
-            $noticeMessage = $this->_helperData->getWriteReviewConfig('notice_message') ?? __('The current customer isn\'t authorized.');
-            throw new GraphQlAuthorizationException($noticeMessage);
+            $noticeMessage = $this->_helperData->getWriteReviewConfig('notice_message') ?? 'The current customer isn\'t authorized.';
+            throw new GraphQlAuthorizationException(__($noticeMessage));
         }
 
         if ($avgValue > 5 || $avgValue <= 0) {
@@ -149,7 +149,7 @@ class CreateReview implements ResolverInterface
         $data['mp_bpr_verified_buyer'] = $this->checkIsBuyer($customerId, $productId)
             ? BuyerType::VERIFIED_BUYER : BuyerType::NOT_VERIFIED_BUYER;
         $ratings                       = $this->getRatingCollection($storeId);
-        /** @var \Magento\Review\Model\Review $reviewModel */
+        /** @var Review $reviewModel */
         $reviewModel = $this->_review->create()->setData($data);
         $reviewModel->unsetData('review_id');
 
@@ -198,6 +198,7 @@ class CreateReview implements ResolverInterface
      * @param $storeId
      *
      * @return AbstractCollection
+     * @throws LocalizedException
      */
     public function getRatingCollection($storeId): AbstractCollection
     {
