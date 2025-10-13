@@ -26,6 +26,9 @@ type Query {
         customerId: Int @doc(description: "Customer ID use in the filter. Apply when action is get_by_customerId.")
         pageSize: Int = 10 @doc(description: "How many items should show on the page.")
         currentPage: Int = 1 @doc(description: "Allows to using paging it start with 1.")
+        sortType: MpBprSortType @doc(description: "Defines how reviews are sorted. Available values: newest, high_rating, helpfulness, date. When using 'date', both 'fromDate' and 'toDate' are required.")
+        fromDate: String @doc(description: "Start date of the review filter range (format: YYYY-MM-DD). Required only when 'sortType' is set to 'date'.")
+        toDate: String @doc(description: "End date of the review filter range (format: YYYY-MM-DD). Required only when 'sortType' is set to 'date'.")
     ):ReviewsOutput @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\Reviews") @doc(description: "The mpBprGetReview query searches for review that match the criteria specified in the filter.")
 }
 
@@ -62,6 +65,7 @@ input ReviewsFilterInput {
     nickname: FilterTypeInput  @doc(description: "User nickname"),
     mp_bpr_helpful: FilterTypeInput  @doc(description: "Mageplaza BPR Helpful.")
 }
+
 input ReviewInput {
     title: String! @doc(description: "Review title."),
     detail: String! @doc(description: "Review detail."),
@@ -72,6 +76,12 @@ input ReviewInput {
     avg_value: String! @doc(description: "Average summaried rating.")
 }
 
+enum MpBprSortType {
+    newest @doc(description: "Sort by newest reviews.")
+    high_rating @doc(description: "Sort by highest rating.")
+    helpfulness @doc(description: "Sort by helpfulness.")
+    date @doc(description: "Sort by date. Requires 'dateFrom' and 'dateTo' fields.")
+}
 
 type ReviewsOutput {
     total_count: Int @doc(description: "The number of reviews returned."),
