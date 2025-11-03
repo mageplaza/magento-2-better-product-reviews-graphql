@@ -56,8 +56,11 @@ class GetConfig implements ResolverInterface
      */
     public function resolve(Field $field, $context, ResolveInfo $info, ?array $value = null, ?array $args = null)
     {
-        $store   = $context->getExtensionAttributes()->getStore();
-        $storeId = (int) $store->getId();
+        $storeId = null;
+
+        if (isset($args['storeId'])) {
+            $storeId = $args['storeId'];
+        }
 
         if (!$this->helper->isEnabled($storeId)) {
             throw new GraphQlInputException(__('The Better Product Reviews module is disabled.'));

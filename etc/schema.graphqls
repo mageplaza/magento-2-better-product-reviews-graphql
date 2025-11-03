@@ -30,7 +30,9 @@ type Query {
         fromDate: String @doc(description: "Start date of the review filter range (format: YYYY-MM-DD). Required only when 'sortType' is set to 'date'.")
         toDate: String @doc(description: "End date of the review filter range (format: YYYY-MM-DD). Required only when 'sortType' is set to 'date'.")
     ):ReviewsOutput @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\Reviews") @doc(description: "The mpBprGetReview query searches for review that match the criteria specified in the filter.")
-    mpBprGetConfig: BetterProductReviewConfig @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\GetConfig") @doc(description: "Get Configs")
+    mpBprGetConfig(
+        storeId: Int @doc(description: "Store Id use in the filter.")
+    ): BetterProductReviewConfig @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\GetConfig") @doc(description: "Get Configs")
 }
 
 type Mutation {
