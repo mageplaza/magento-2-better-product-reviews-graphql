@@ -192,6 +192,7 @@ type BprWriteReviewConfig {
     upload_limit: Int @doc(description: "Maximum number of images a customer can upload with a review.")
     upload_videos: Boolean @doc(description: "Allow customers to upload videos with their reviews.")
     upload_limit_video_size: Int @doc(description: "Maximum size (in MB) for each uploaded video.")
+    upload_videos_type: String @doc(description: "The file type allowed for uploaded videos.")
     term_conditions: BprTermConditionConfig
 }
 
