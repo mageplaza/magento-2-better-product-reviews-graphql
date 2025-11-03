@@ -328,6 +328,9 @@ class Reviews implements ResolverInterface
             if (!preg_match($datePattern, $args['toDate'])) {
                 throw new GraphQlInputException(__('toDate format is invalid. Expected format: YYYY-MM-DD'));
             }
+            if (strtotime($args['fromDate']) > strtotime($args['toDate'])) {
+                throw new GraphQlInputException(__('fromDate must be earlier than or equal to toDate.'));
+            }
         }
     }
 }
