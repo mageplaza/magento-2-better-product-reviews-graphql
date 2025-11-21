@@ -26,7 +26,13 @@ type Query {
         customerId: Int @doc(description: "Customer ID use in the filter. Apply when action is get_by_customerId.")
         pageSize: Int = 10 @doc(description: "How many items should show on the page.")
         currentPage: Int = 1 @doc(description: "Allows to using paging it start with 1.")
+        sortType: MpBprSortType @doc(description: "Defines how reviews are sorted. Available values: newest, high_rating, helpfulness, date. When using 'date', both 'fromDate' and 'toDate' are required.")
+        fromDate: String @doc(description: "Start date of the review filter range (format: YYYY-MM-DD). Required only when 'sortType' is set to 'date'.")
+        toDate: String @doc(description: "End date of the review filter range (format: YYYY-MM-DD). Required only when 'sortType' is set to 'date'.")
     ):ReviewsOutput @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\Reviews") @doc(description: "The mpBprGetReview query searches for review that match the criteria specified in the filter.")
+    mpBprGetConfig(
+        storeId: Int @doc(description: "Store Id use in the filter.")
+    ): BetterProductReviewConfig @resolver(class: "\\Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\GetConfig") @doc(description: "Get Configs")
 }
 
 type Mutation {
@@ -62,6 +68,7 @@ input ReviewsFilterInput {
     nickname: FilterTypeInput  @doc(description: "User nickname"),
     mp_bpr_helpful: FilterTypeInput  @doc(description: "Mageplaza BPR Helpful.")
 }
+
 input ReviewInput {
     title: String! @doc(description: "Review title."),
     detail: String! @doc(description: "Review detail."),
@@ -72,6 +79,12 @@ input ReviewInput {
     avg_value: String! @doc(description: "Average summaried rating.")
 }
 
+enum MpBprSortType {
+    newest @doc(description: "Sort by newest reviews.")
+    high_rating @doc(description: "Sort by highest rating.")
+    helpfulness @doc(description: "Sort by helpfulness.")
+    date @doc(description: "Sort by date. Requires 'dateFrom' and 'dateTo' fields.")
+}
 
 type ReviewsOutput {
     total_count: Int @doc(description: "The number of reviews returned."),
@@ -144,4 +157,83 @@ type Product {
     created_at: String @doc(description: "Timestamp indicating when the product was created."),
     updated_at: String @doc(description: "Timestamp indicating when the product was updated."),
     review: ReviewsOutputNoPage @resolver(class: "Mageplaza\\BetterProductReviewsGraphQl\\Model\\Resolver\\Review\\Review") @doc(description: "The reviews assigned to a product.")
+}
+
+type BetterProductReviewConfig {
+    general: BprGeneralConfig @doc(description: "General configuration settings.")
+    write_review: BprWriteReviewConfig @doc(description: "Settings related to writing reviews.")
+    review_listing: BprReviewListingConfig @doc(description: "Settings related to displaying reviews.")
+    analytics: BprGoogleAnalyticsConfig @doc(description: "Google Analytics tracking configuration.")
+    order: BprOrderConfig @doc(description: "Order related settings such as review reminders.")
+}
+
+type BprGeneralConfig {
+    enabled: Boolean @doc(description: "Enable or disable Better Product Reviews.")
+    review_remind: Boolean @doc(description: "Show purchased products without reviews in customer dashboard.")
+    review_summary: Boolean @doc(description: "Enable Review Summary block on product page.")
+    review_status: String @doc(description: "Default status for new reviews.")
+    send_subscribed_only: Boolean @doc(description: "Send review reminder emails only to newsletter subscribers.")
+    email: [BprEmailConfig] @doc(description: "Email address used as sender for review reminder emails.")
+}
+
+type BprEmailConfig {
+    send: String @doc(description: "Time after order completion to send review reminder email.")
+    sender: String @doc(description: "Email sender identity.")
+    template: String @doc(description: "Email template for review reminder emails.")
+}
+
+type BprWriteReviewConfig {
+    enabled: String @doc(description: "Enable or disable the write review feature.")
+    customer_group: [Int] @doc(description: "Customer groups allowed to write reviews.")
+    review_by_purchased: Boolean @doc(description: "Allow only customers who purchased the product to write reviews.")
+    order_status: [String] @doc(description: "When a customer places an order with a certain product, if the selected Order State is satisfied, they will write a review for that product.")
+    notice_message: String @doc(description: "The notice for customers who are not allowed to write reviews.")
+    use_ajax: Boolean @doc(description: "Use AJAX to submit reviews without reloading the page.")
+    recommend_product: String @doc(description: "Enable the 'Do you recommend this product?' option in the review form.")
+    upload_images: Boolean @doc(description: "Allow customers to upload images with their reviews.")
+    upload_limit: Int @doc(description: "Maximum number of images a customer can upload with a review.")
+    upload_videos: Boolean @doc(description: "Allow customers to upload videos with their reviews.")
+    upload_limit_video_size: Int @doc(description: "Maximum size (in MB) for each uploaded video.")
+    upload_videos_type: String @doc(description: "The file type allowed for uploaded videos.")
+    term_conditions: BprTermConditionConfig
+}
+
+type BprTermConditionConfig {
+    enabled: Boolean @doc(description: "Enable or disable the terms and conditions checkbox in the review form.")
+    title: String @doc(description: "Title for the terms and conditions section.")
+    anchor_text: String @doc(description: "Text for the terms and conditions link.")
+    anchor_url: String @doc(description: "URL for the terms and conditions link.")
+    is_checked: Boolean @doc(description: "Set the terms and conditions checkbox to be checked by default.")
+}
+
+type BprReviewListingConfig {
+    enabled_helpful: Boolean @doc(description: "Enable or disable the helpfulness voting feature on reviews.")
+    store_owner_answer: Boolean @doc(description: "Allow store owners to reply to customer reviews.")
+    social_share: Boolean @doc(description: "Enable social media sharing options on reviews.")
+    verified_buyer: Boolean @doc(description: "Display 'Verified Buyer' badge on reviews from verified purchasers.")
+    show_nickname: Boolean @doc(description: "Display the reviewer's nickname on reviews.")
+    review_date: Boolean @doc(description: "Display the date when the review was posted.")
+    items_per_page: Int @doc(description: "Number of reviews to display per page.")
+    sorting: BprSortingConfig @doc(description: "Configuration for review sorting options.")
+}
+
+type BprSortingConfig {
+    enabled: Boolean @doc(description: "Enable or disable custom sorting options for reviews.")
+    type: [Int] @doc(description: "Available sorting options: newest, high_rating, helpfulness, date.")
+    default_sorting: String @doc(description: "Default sorting option.")
+    default_sort_direction: String @doc(description: "Default sorting direction: ASC or DESC.")
+}
+
+type BprGoogleAnalyticsConfig {
+    enabled: Boolean @doc(description: "Enable or disable Google Analytics tracking for reviews.")
+    source: String @doc(description: "Source parameter for Google Analytics tracking.")
+    medium: String @doc(description: "Medium parameter for Google Analytics tracking.")
+    name: String @doc(description: "Campaign name for Google Analytics tracking.")
+    term: String @doc(description: "Term parameter for Google Analytics tracking.")
+    content: String @doc(description: "Content parameter for Google Analytics tracking.")
+}
+
+type BprOrderConfig {
+    exclude: [String] @doc(description: "Products with those SKUs will be Excluded, can use Regular Expression, separated by ',' character.")
+    include: [String] @doc(description: "Products with those SKUs will be Included, can use Regular Expression, separated by ',' character.")
 }

@@ -29,10 +29,10 @@ use Magento\Framework\GraphQl\Exception\GraphQlInputException;
 use Magento\Framework\GraphQl\Query\Resolver\Argument\SearchCriteria\Builder as SearchCriteriaBuilder;
 use Magento\Framework\GraphQl\Query\ResolverInterface;
 use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use Mageplaza\BetterProductReviews\Helper\Data;
 use Mageplaza\BetterProductReviews\Model\ResourceModel\Review\Collection;
 use Mageplaza\BetterProductReviews\Model\ResourceModel\Review\CollectionFactory;
 use Mageplaza\BetterProductReviewsGraphQl\Model\Resolver\Filter\Query\Filter;
-use Mageplaza\BetterProductReviews\Helper\Data;
 
 /**
  * Class Reviews
@@ -132,6 +132,30 @@ class Reviews implements ResolverInterface
             default:
                 throw new GraphQlInputException(__('No find your function'));
         }
+
+        if (isset($collection)) {
+            $defaultDirection = $this->_helperData->getReviewListingConfig('sorting/default_sort_direction');
+
+            switch ($args['sortType']) {
+                case 'newest':
+                    $collection->setDateOrder($defaultDirection);
+                    break;
+                case 'high_rating':
+                    $collection->setVotingOrder($defaultDirection);
+                    break;
+                case 'helpfulness':
+                    $collection->setHelpfulnessOrder($defaultDirection);
+                    break;
+                case 'date':
+                    if ($args['fromDate'] && $args['toDate']) {
+                        $collection->setDateByRange([$args['fromDate'], $args['toDate']], $defaultDirection);
+                    } else {
+                        throw new GraphQlInputException(__('Require fromDate and toDate for filter by date'));
+                    }
+                    break;
+            }
+        }
+
         $searchResult = $this->filterQuery->getResult($searchCriteria, $collection);
 
         //possible division by 0
@@ -281,6 +305,32 @@ class Reviews implements ResolverInterface
 
         if (isset($args['pageSize']) && $args['pageSize'] < 1) {
             throw new GraphQlInputException(__('pageSize value must be greater than 0.'));
+        }
+
+        if ($args['action'] !== 'get_all_review' && !isset($args['sortType'])) {
+            throw new GraphQlInputException(__('sortType value is not null'));
+        }
+
+        $sortTypes = ['newest', 'high_rating', 'helpfulness', 'date'];
+        if (!in_array($args['sortType'], $sortTypes)) {
+            throw new GraphQlInputException(__('sortType value is not valid.'));
+        }
+
+        if ($args['sortType'] === 'date') {
+            if (empty($args['fromDate']) || empty($args['toDate'])) {
+                throw new GraphQlInputException(__('Require fromDate and toDate when sortType is date.'));
+            }
+
+            $datePattern = '/^\d{4}-\d{2}-\d{2}$/';
+            if (!preg_match($datePattern, $args['fromDate'])) {
+                throw new GraphQlInputException(__('fromDate format is invalid. Expected format: YYYY-MM-DD'));
+            }
+            if (!preg_match($datePattern, $args['toDate'])) {
+                throw new GraphQlInputException(__('toDate format is invalid. Expected format: YYYY-MM-DD'));
+            }
+            if (strtotime($args['fromDate']) > strtotime($args['toDate'])) {
+                throw new GraphQlInputException(__('fromDate must be earlier than or equal to toDate.'));
+            }
         }
     }
 }
