@@ -26,6 +26,7 @@ namespace Mageplaza\BetterProductReviewsGraphQl\Model\Resolver;
 use Magento\Framework\GraphQl\Config\Element\Field;
 use Magento\Framework\GraphQl\ConfigInterface;
 use Magento\Framework\GraphQl\Query\Resolver\Argument\FieldEntityAttributesInterface;
+use Mageplaza\BetterProductReviews\Helper\Data;
 
 /**
  * Class FilterArgument
@@ -37,13 +38,20 @@ class FilterArgument implements FieldEntityAttributesInterface
     private $config;
 
     /**
-     * FilterArgument constructor.
-     *
-     * @param ConfigInterface $config
+     * @var Data
      */
-    public function __construct(ConfigInterface $config)
-    {
+    protected $helperData;
+
+    /**
+     * @param ConfigInterface $config
+     * @param Data $helperData
+     */
+    public function __construct(
+        ConfigInterface $config,
+        Data $helperData
+    ) {
         $this->config = $config;
+        $this->helperData = $helperData;
     }
 
     /**
@@ -57,6 +65,7 @@ class FilterArgument implements FieldEntityAttributesInterface
             $fields[$field->getName()] = '';
         }
 
-        return array_keys($fields);
+
+        return $this->helperData->versionCompare('2.3.4') ? $fields : array_keys($fields);
     }
 }
